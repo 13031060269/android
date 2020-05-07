@@ -6,22 +6,21 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.lwp.lib.BaseActivity
 import com.lwp.lib.mvp.BaseModel
+import com.lwp.lib.mvp.RootModel
 import com.lwp.lib.utils.onIO
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
 
 class MyModel : BaseModel() {
-    fun test() {
-    }
+
 }
 
 class MainActivity : BaseActivity<MyModel>() {
     override fun onCreate() {
         fab.setOnClickListener {
-            toGranted(this@MainActivity)
+//            toGranted(this@MainActivity)
             reload()
         }
-        viewModel.test()
     }
 
     override fun reload() {

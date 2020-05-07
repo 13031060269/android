@@ -1,8 +1,6 @@
 package com.lwp.lib
 
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -10,17 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.lwp.lib.databinding.ActivityBaseBinding
 import com.lwp.lib.mvp.BaseModel
 import com.lwp.lib.mvp.RootModel
-import com.lwp.lib.mvp.UiInterface
 import com.lwp.lib.utils.ForResultHelper
 import com.lwp.lib.utils.getGenericType
 import com.lwp.lib.utils.onIO
 import com.lwp.lib.utils.onUI
 import kotlinx.android.synthetic.main.activity_base.*
-import kotlinx.android.synthetic.main.base_error.*
-import kotlinx.android.synthetic.main.base_loading.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.withContext
 
 abstract class BaseActivity<T : BaseModel> : AppCompatActivity() {
     lateinit var viewModel: T
@@ -43,6 +36,7 @@ abstract class BaseActivity<T : BaseModel> : AppCompatActivity() {
                     lifecycleOwner = that
                     mRootModel = get(RootModel::class.java)
                     rootModel = mRootModel
+                    viewModel.rootModel = mRootModel
                 }
         }
         layout_error.setOnClickListener {

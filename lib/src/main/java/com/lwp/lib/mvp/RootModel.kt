@@ -1,31 +1,31 @@
 package com.lwp.lib.mvp
 
+import android.view.View
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class RootModel : ViewModel(), UiInterface {
-    private val showLoading = MutableLiveData(false)
-    private val loadingText = MutableLiveData(UI_LOADING)
-    private val showError = MutableLiveData(false)
-    private val errorText = MutableLiveData(UI_NET_ERROR)
-
+    val showLoading = MutableLiveData(View.GONE)
+    val loadingText = MutableLiveData(UI_LOADING)
+    val showError = MutableLiveData(View.GONE)
+    val errorText = MutableLiveData(UI_NET_ERROR)
     override fun showLoading(text: String) {
-        showLoading.value = true
+        showLoading.value = View.VISIBLE
         loadingText.value = text
     }
 
     override fun dismissLoading() {
-        showLoading.value = false
+        showLoading.value = View.GONE
     }
 
     override fun showError(text: String) {
-        showError.value = true
-        showLoading.value = false
+        showError.value = View.VISIBLE
+        showLoading.value = View.GONE
         errorText.value = text
     }
 
     override fun hideError() {
-        showError.value = false
+        showError.value = View.GONE
     }
 
     override fun showToast(msg: String) {
