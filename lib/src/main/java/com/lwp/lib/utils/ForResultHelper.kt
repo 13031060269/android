@@ -1,4 +1,4 @@
-package com.lwp.app
+package com.lwp.lib.utils
 
 import android.content.Intent
 import android.util.ArrayMap

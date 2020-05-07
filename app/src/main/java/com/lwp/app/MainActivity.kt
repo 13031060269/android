@@ -1,25 +1,44 @@
 package com.lwp.app
 
-import com.lwp.app.utils.onIO
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.lifecycle.viewModelScope
+import com.lwp.lib.BaseActivity
+import com.lwp.lib.mvp.BaseModel
+import com.lwp.lib.utils.onIO
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
 
+class MyModel : BaseModel() {
+    fun test() {
+    }
+}
 
-class MainActivity : BaseActivity() {
-
+class MainActivity : BaseActivity<MyModel>() {
     override fun onCreate() {
         fab.setOnClickListener {
+            toGranted(this@MainActivity)
             reload()
         }
-        ForResultHelper.putCall(intent) { println("===========finish============") }
+        viewModel.test()
     }
 
-    override fun reload() = onIO {
-        showLoadingAsync()
-        delay(2000)
-        hideLoadingAsync()
+    override fun reload() {
+        onIO {
+            mRootModel.showUiLoading()
+            delay(2000)
+            mRootModel.dismissUiLoading()
+        }
+    }
+
+    private fun toGranted(context: Context) {
+        val localIntent = Intent()
+        localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        localIntent.action = "android.settings.APPLICATION_DETAILS_SETTINGS"
+        localIntent.data = Uri.fromParts("package", packageName, null)
+        context.startActivity(localIntent)
     }
 
     override fun getLayoutId(): Int = R.layout.activity_main
-
 }

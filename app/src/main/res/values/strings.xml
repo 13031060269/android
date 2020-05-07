@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">LwpApp</string>
-    <string name="error_msg">网络错误！</string>
-    <string name="loading_msg">加载中...</string>
     <string name="title_activity_main">MainActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

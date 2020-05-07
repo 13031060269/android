@@ -1,2 +1,3 @@
 rootProject.name='LwpApp'
 include ':app'
+include ':lib'
