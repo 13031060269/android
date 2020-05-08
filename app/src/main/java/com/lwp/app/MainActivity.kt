@@ -2,11 +2,12 @@ package com.lwp.app
 
 import android.content.Context
 import com.lwp.lib.BaseActivity
+import com.lwp.lib.BaseModelActivity
 import com.lwp.lib.mvp.BaseModel
 import com.lwp.lib.network.LwpRequestBody
 
 class MyModel : BaseModel() {
-    override fun initData() {
+    override fun onCreate() {
     }
 
     fun toGranted(context: Context) {
@@ -22,6 +23,6 @@ class MyModel : BaseModel() {
     }
 }
 
-class MainActivity : BaseActivity<MyModel>() {
+class MainActivity : BaseModelActivity<MyModel>() {
     override fun getLayoutId(): Int = R.layout.activity_main
 }

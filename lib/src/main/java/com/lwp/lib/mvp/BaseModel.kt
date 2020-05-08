@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 abstract class BaseModel : ViewModel() {
     var rootModel: RootModel? = null
     val lwpNetwork: LwpNetwork by lazy { LwpNetwork() }
-    abstract fun initData()//
+    abstract fun onCreate()//
     inline fun <reified T> loadData(
         body: LwpRequestBody,
         crossinline success: (T) -> Unit,
