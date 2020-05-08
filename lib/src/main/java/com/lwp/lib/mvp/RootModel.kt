@@ -28,7 +28,7 @@ class RootModel : ViewModel(), UiInterface {
         showError.value = View.GONE
     }
 
-    override fun showToast(msg: String) {
+    override fun showToast(msg: String?) {
         println("--------------showToast:$msg-------------------")
 //        Toast.makeText(, msg, Toast.LENGTH_SHORT).show()
     }

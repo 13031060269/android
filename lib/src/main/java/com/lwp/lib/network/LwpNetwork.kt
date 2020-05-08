@@ -1,19 +1,8 @@
 package com.lwp.lib.network
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.lwp.lib.utils.*
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
-class LwpNetwork {
-    val service: NetworkService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .build().create(NetworkService::class.java)
-    }
-
+open class LwpNetwork {
     suspend inline fun <reified T> request(
         requestBody: LwpRequestBody,
         crossinline success: (T) -> Unit,
@@ -34,20 +23,21 @@ class LwpNetwork {
                         }
                     }
                 }.await()
-                if (responseBody.code == SUCCESS) {
+                if (responseBody.errCode == SUCCESS) {
                     val fromJson = fromJson<T>(responseBody.data)
                     onUi {
                         success(fromJson)
                     }
                 } else {
                     onUi {
-                        error(responseBody.code, responseBody.msg)
+                        error(responseBody.errCode, responseBody.errMsg)
                     }
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             onUi {
-                error(-1, "网络异常")
+                error(-1, e.message)
             }
         }
     }

@@ -23,13 +23,13 @@
 
         <include
             android:id="@+id/layout_error"
-            layout="@layout/base_error"
+            layout="@layout/lib_lwp_base_error"
             android:visibility="@{rootModel.showError}"
             bind:rootModel="@{rootModel}" />
 
         <include
             android:id="@+id/layout_loading"
-            layout="@layout/base_loading"
+            layout="@layout/lib_lwp_base_loading"
             android:visibility="@{rootModel.showLoading}"
             bind:rootModel="@{rootModel}" />
 

@@ -11,7 +11,7 @@ interface UiInterface {
     fun dismissLoading()
     fun showError(text: String = UI_NET_ERROR)
     fun hideError()
-    fun showToast(msg: String)
+    fun showToast(msg: String?)
 
 
     suspend fun showUiLoading(text: String = UI_LOADING) {
