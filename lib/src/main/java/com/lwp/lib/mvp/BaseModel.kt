@@ -2,35 +2,72 @@ package com.lwp.lib.mvp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lwp.lib.network.LwpNetwork
 import com.lwp.lib.network.LwpRequestBody
+import com.lwp.lib.network.LwpResponseBody
+import com.lwp.lib.network.loadData
+import com.lwp.lib.utils.*
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 abstract class BaseModel : ViewModel() {
     var rootModel: RootModel? = null
-    val lwpNetwork: LwpNetwork by lazy { LwpNetwork() }
     abstract fun onCreate()//
-    inline fun <reified T> loadData(
-        body: LwpRequestBody,
-        crossinline success: (T) -> Unit,
-        crossinline error: (Int, String?) -> Unit = { _, msg ->
+
+    inline fun loadString(
+        requestBody: LwpRequestBody,
+        crossinline success: (String?) -> Unit,
+        crossinline error: (HttpException) -> Unit = {
             rootModel?.dismissLoading()
-            rootModel?.showToast(msg)
+            rootModel?.showToast(it.msg)
         }
     ) {
-        viewModelScope.launch {
-            lwpNetwork.request(body, success, error)
+        onUI {
+            try {
+                val body = loadData<String>(requestBody)
+                success(body)
+            } catch (e: HttpException) {
+                error(e)
+            }
         }
     }
+
+    inline fun <reified T> loadResponseBodyData(
+        requestBody: LwpRequestBody,
+        crossinline success: (T?) -> Unit,
+        crossinline error: (HttpException) -> Unit = {
+            rootModel?.dismissLoading()
+            rootModel?.showToast(it.msg)
+        }
+    ) {
+        onIO {
+            try {
+                val body = loadData<LwpResponseBody<String>>(requestBody)
+                if (body.errCode == SUCCESS) {
+                    var fromJson: T? = null
+                    body.data?.also {
+                        fromJson = fromJson<T>(body.data)
+                    }
+                    onUI { success(fromJson) }
+                } else {
+                    throw HttpException(body.errMsg, body.errCode)
+                }
+
+            } catch (e: HttpException) {
+                onUI { error(e) }
+            }
+        }
+
+    }
+
 
     override fun onCleared() {
         rootModel = null
     }
 
     fun onUI(block: suspend () -> Unit): Job =
-        com.lwp.lib.utils.onUI(viewModelScope) { block() }
+        onUI(viewModelScope) { block() }
 
     fun onIO(block: suspend () -> Unit): Job =
-        com.lwp.lib.utils.onIO(viewModelScope) { block() }
+        onIO(viewModelScope) { block() }
 }
+
+data class HttpException(val msg: String?, val code: Int = SUCCESS) : Exception(msg)

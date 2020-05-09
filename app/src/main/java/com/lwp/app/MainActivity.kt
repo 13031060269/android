@@ -1,8 +1,8 @@
 package com.lwp.app
 
 import android.content.Context
+import android.view.View
 import com.lwp.lib.BaseActivity
-import com.lwp.lib.BaseModelActivity
 import com.lwp.lib.mvp.BaseModel
 import com.lwp.lib.network.LwpRequestBody
 
@@ -12,9 +12,11 @@ class MyModel : BaseModel() {
 
     fun toGranted(context: Context) {
         val body = LwpRequestBody("hfas/sapi/v2/index/query-loan-status", mutableMapOf())
-        loadData<Any>(body, {
+        loadResponseBodyData<Any>(body, {
             println("it=======$it")
-        })
+        }){
+            println("error=======$it")
+        }
 //        val localIntent = Intent()
 //        localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //        localIntent.action = "android.settings.APPLICATION_DETAILS_SETTINGS"
@@ -23,6 +25,11 @@ class MyModel : BaseModel() {
     }
 }
 
-class MainActivity : BaseModelActivity<MyModel>() {
+class MainActivity : BaseActivity<MyModel>() {
     override fun getLayoutId(): Int = R.layout.activity_main
+    override fun onCreate(inflated: View) {
+//        fab.setOnClickListener {
+//            println("---------------fab--------------------")
+//        }
+    }
 }

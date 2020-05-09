@@ -4,7 +4,7 @@
     <data>
 
         <variable
-            name="rootModel"
+            name="data"
             type="com.lwp.lib.mvp.RootModel" />
     </data>
 
@@ -19,6 +19,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@{rootModel.errorText}" />
+            android:text="@{data.errorText}" />
     </LinearLayout>
 </layout>
