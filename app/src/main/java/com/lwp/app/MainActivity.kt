@@ -2,9 +2,13 @@ package com.lwp.app
 
 import android.content.Context
 import android.view.View
+import com.lwp.lib.APP
 import com.lwp.lib.BaseActivity
 import com.lwp.lib.mvp.BaseModel
 import com.lwp.lib.network.LwpRequestBody
+import com.lwp.lib.utils.getCache
+import com.lwp.lib.utils.saveCache
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MyModel : BaseModel() {
     override fun onCreate() {
@@ -14,7 +18,7 @@ class MyModel : BaseModel() {
         val body = LwpRequestBody("hfas/sapi/v2/index/query-loan-status", mutableMapOf())
         loadResponseBodyData<Any>(body, {
             println("it=======$it")
-        }){
+        }) {
             println("error=======$it")
         }
 //        val localIntent = Intent()
@@ -28,8 +32,16 @@ class MyModel : BaseModel() {
 class MainActivity : BaseActivity<MyModel>() {
     override fun getLayoutId(): Int = R.layout.activity_main
     override fun onCreate(inflated: View) {
-//        fab.setOnClickListener {
-//            println("---------------fab--------------------")
-//        }
+        APP.context = applicationContext
+
+        fab.setOnClickListener {
+            println("========${saveCache(Test("3333333"))}============")
+            println("========${saveCache(Test2("2222222"))}============")
+            println("========${getCache<Test>()}============")
+            println("========${getCache<Test2>()}============")
+        }
     }
 }
+
+data class Test(val name: String)
+data class Test2(val name: String)
