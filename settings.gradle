@@ -1,3 +1,7 @@
+include ':libPluginHostPublic'
+include ':libHost'
+include ':test'
+include ':libPlugin'
 rootProject.name='LwpApp'
 include ':app'
-include ':lib'
+include ':libDefault'

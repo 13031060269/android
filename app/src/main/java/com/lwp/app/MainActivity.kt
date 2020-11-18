@@ -1,47 +1,26 @@
 package com.lwp.app
 
-import android.content.Context
-import android.view.View
-import com.lwp.lib.APP
-import com.lwp.lib.BaseActivity
-import com.lwp.lib.mvp.BaseModel
-import com.lwp.lib.network.LwpRequestBody
-import com.lwp.lib.utils.getCache
-import com.lwp.lib.utils.saveCache
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.lwp.lib.host.HostManager
+import com.lwp.lib.plugin.PluginManager
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
-class MyModel : BaseModel() {
-    override fun onCreate() {
-    }
+open class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    fun toGranted(context: Context) {
-        val body = LwpRequestBody("hfas/sapi/v2/index/query-loan-status", mutableMapOf())
-        loadResponseBodyData<Any>(body, {
-            println("it=======$it")
-        }) {
-            println("error=======$it")
+        btn.setOnClickListener {
+            HostManager.getInstance(application).also {
+                it.launch(File("/sdcard/test.apk"))
+            }
         }
-//        val localIntent = Intent()
-//        localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        localIntent.action = "android.settings.APPLICATION_DETAILS_SETTINGS"
-//        localIntent.data = Uri.fromParts("package", context.packageName, null)
-//        context.startActivity(localIntent)
+//        btn_2.setOnClickListener {
+//            PluginManager.getInstance().also {
+//                it.launch("/sdcard/test3.apk", this)
+//            }
+//        }
     }
 }
-
-class MainActivity : BaseActivity<MyModel>() {
-    override fun getLayoutId(): Int = R.layout.activity_main
-    override fun onCreate(inflated: View) {
-        APP.context = applicationContext
-
-        fab.setOnClickListener {
-            println("========${saveCache(Test("3333333"))}============")
-            println("========${saveCache(Test2("2222222"))}============")
-            println("========${getCache<Test>()}============")
-            println("========${getCache<Test2>()}============")
-        }
-    }
-}
-
-data class Test(val name: String)
-data class Test2(val name: String)
