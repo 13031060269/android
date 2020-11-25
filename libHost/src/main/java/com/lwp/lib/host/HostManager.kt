@@ -2,27 +2,46 @@ package com.lwp.lib.host
 
 import android.app.Application
 import android.content.Context
-import android.content.pm.PackageManager
-import android.content.res.AssetManager
-import android.content.res.Resources
-import dalvik.system.DexClassLoader
+import android.content.pm.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import kotlin.collections.HashMap
 
-const val lib = "lib"
-const val dir = "_dir"
+const val libPath = "/lib"
+private const val dir = "_dir"
+const val activitiesPath = "/activities/"
+const val apkPath = "/base.apk"
+const val optimized = "/optimized"
+const val pluginActivity = "com.lwp.lib.host.PluginActivity"
+internal val apkMap = HashMap<String, ApkInfo>()
+internal var curApk: ApkInfo? = null
+internal lateinit var hostPackageName: String
+internal lateinit var hostActivityInfo: ActivityInfo
 
-class HostManager private constructor(private val application: Application) {
-    private val frameworkClassLoader: FrameworkClassLoader
-    private val dexOutputPath: String
+object HostManager {
+    private lateinit var frameworkClassLoader: FrameworkClassLoader
+    lateinit var outputPath: String
+    private lateinit var application: Application
 
-    init {
-        val optimizedDexPath = application.getDir("plugins", Context.MODE_PRIVATE)
+    fun init(application: Application) {
+        this.application = application
+        val baseContext = application.baseContext
+//        println("2222222222222222222="+baseContext.javaClass)
+        hostPackageName = application.packageName
+        hostActivityInfo = ActivityInfo().apply {
+            name = pluginActivity
+            packageName = hostPackageName
+        }
+        val optimizedDexPath = application.getDir("apkList", Context.MODE_PRIVATE)
         optimizedDexPath.mkdirs()
-        dexOutputPath = optimizedDexPath.absolutePath
+        outputPath = optimizedDexPath.absolutePath
         val dexInternalStoragePath = application
             .getDir("plugins", Context.MODE_PRIVATE)
         dexInternalStoragePath.mkdirs()
@@ -31,66 +50,68 @@ class HostManager private constructor(private val application: Application) {
             "mBase.mPackageInfo", true
         )
         val classLoader = application.classLoader
-        frameworkClassLoader = FrameworkClassLoader(
-            classLoader
-        )
+        frameworkClassLoader = FrameworkClassLoader(classLoader)
         HostUtils.setFieldValue(
             mPackageInfo, "mClassLoader",
             frameworkClassLoader, true
         )
     }
 
+    fun application(): Application = application
+
+    fun dir(id: String) = "$outputPath/$id$dir"
+
     @Throws(Exception::class)
     fun launch(apkFile: File) {
-        if (!apkFile.exists() || !apkFile.isFile) return
-        application.packageManager
-            .getPackageArchiveInfo(
-                apkFile.absolutePath,
-                PackageManager.GET_ACTIVITIES
-//                        or PackageManager.GET_RECEIVERS //
-//                        or PackageManager.GET_PROVIDERS //
-//                        or PackageManager.GET_META_DATA //
-//                        or PackageManager.GET_SHARED_LIBRARY_FILES //
-//                        or PackageManager.GET_SERVICES //
-                //        or PackageManager.GET_SIGNATURES//
-            )?.apply {
-                val id = "${packageName}_$versionName"
-                val dir = File(dexOutputPath, id + dir)
-                val privateFile = File(dir, "base.apk")
-                val dexPath = privateFile.absolutePath
-                if (!privateFile.exists()) {
-                    HostUtils.saveToFile(apkFile, privateFile)
-                }
-                val libDir = File(dir, lib)
-                val zipFile = ZipFile(apkFile, ZipFile.OPEN_READ)
-                zipFile.use {
-                    if (extractLibFile(it, libDir)) {
-                        this.applicationInfo.nativeLibraryDir = libDir.absolutePath
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                if (!apkFile.exists() || !apkFile.isFile) return@withContext
+                application.packageManager
+                    .getPackageArchiveInfo(
+                        apkFile.absolutePath,
+                        PackageManager.GET_ACTIVITIES
+                                or PackageManager.GET_RECEIVERS //
+                                or PackageManager.GET_PROVIDERS //
+                                or PackageManager.GET_META_DATA //
+                                or PackageManager.GET_SHARED_LIBRARY_FILES //
+                                or PackageManager.GET_SERVICES //
+                                or PackageManager.GET_SIGNATURES //
+                    )?.apply {
+//                        val id = packageName
+                        val id = "${packageName}_${versionName}_$versionCode"
+                        if (apkMap[id] == null) {
+                            val dir = File(outputPath, id + dir)
+                            val libDir = File(dir, libPath)
+                            dir.mkdirs()
+                            File(dir, libPath).mkdirs()
+                            File(dir, activitiesPath).mkdirs()
+                            File(dir, optimized).mkdirs()
+                            libDir.mkdirs()
+                            val privateFile = File(dir, apkPath)
+                            if (!privateFile.exists()) {
+                                HostUtils.saveToFile(apkFile, privateFile)
+                            }
+                            try {
+                                ZipFile(apkFile, ZipFile.OPEN_READ).use {
+                                    extractLibFile(it, libDir)
+                                }
+                            } catch (e: Exception) {
+                            }
+                            val apkInfo =
+                                ApkInfo(this@HostManager, id, this, frameworkClassLoader)
+                            apkInfo.attach(application)
+                            apkMap[id] = apkInfo
+                        }
+                        apkMap[id]?.launch(application)
                     }
-                }
-                val loader = DexClassLoader(
-                    dexPath,
-                    dexOutputPath,
-                    applicationInfo?.nativeLibraryDir,
-                    frameworkClassLoader.parent
-                )
-                val am = AssetManager::class.java.newInstance()
-                am.javaClass.getMethod(
-                    "addAssetPath", String::
-                    class.java
-                ).invoke(am, dexPath)
-                val baseRes: Resources = application.resources
-                val res: Resources = Resources(
-                    am, baseRes.displayMetrics,
-                    baseRes.configuration
-                )
             }
+        }
     }
 
     @Throws(IOException::class)
     private fun extractLibFile(zip: ZipFile, tarDir: File): Boolean {
-//        val defaultArch = "arm64-v8a"
-        val defaultArch = "x86"
+        val defaultArch = "armeabi-v7a"
+//        val defaultArch = "x86"
         val archLibEntries: MutableMap<String, MutableList<ZipEntry>> = HashMap()
         val e = zip.entries()
         while (e
@@ -140,5 +161,5 @@ class HostManager private constructor(private val application: Application) {
         return hasLib
     }
 
-    companion object : SingletonHolder<HostManager, Application>(::HostManager)
+//    companion object : SingletonHolder<HostManager, Application>(::HostManager)
 }

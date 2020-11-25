@@ -1,26 +1,43 @@
 package com.lwp.lib.host
 
-import java.util.*
-import kotlin.jvm.Throws
+import dalvik.system.PathClassLoader
 
-internal class FrameworkClassLoader(baseClassLoader: ClassLoader) :
-    ClassLoader(baseClassLoader.parent) {
-    private val classLoaders: MutableList<ClassLoader> by lazy { LinkedList() }
+internal class FrameworkClassLoader(private val baseClassLoader: ClassLoader) :
+    PathClassLoader("", null) {
     init {
-        classLoaders.add(baseClassLoader)
+        HostUtils.setFieldValue(
+            baseClassLoader, "parent",
+            null, true
+        )
     }
 
-    @Throws(ClassNotFoundException::class)
-    override fun loadClass(className: String, resolve: Boolean): Class<*> {
-        try {
-            val last = classLoaders.last()
-            val loadClass = last.loadClass(className)
-            if (loadClass != null && resolve) {
-                resolveClass(loadClass)
+    @kotlin.jvm.Throws(ClassNotFoundException::class)
+    override fun loadClass(className: String, resolve: Boolean): Class<*>? {
+        return loadClass(className, resolve, false)
+    }
+
+    @kotlin.jvm.Throws(ClassNotFoundException::class)
+    fun loadClass(className: String, resolve: Boolean, notFound: Boolean): Class<*>? {
+        var c: Class<*>? = null
+        if (curApk == null || notFound) {
+            try {
+                return baseClassLoader.loadClass(className)
+            } catch (e: Exception) {
             }
-            return loadClass
-        } catch (e: Exception) {
+        } else {
+            c = curApk?.loadClass(className, resolve)
         }
-        return super.loadClass(className, resolve)
+        if (c == null) {
+            throw ClassNotFoundException(className)
+        }
+        return c
+    }
+
+    private fun load(className: String, loader: ClassLoader?): Class<*>? {
+        return try {
+            loader?.loadClass(className)
+        } catch (e: Exception) {
+            load(className, loader?.parent)
+        }
     }
 }

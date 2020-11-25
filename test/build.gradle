@@ -4,14 +4,14 @@ apply plugin: 'kotlin-android-extensions'
 //apply from: "../public.gradle"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion compileVersion
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         minSdkVersion minVersion
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion targetVersion
+        versionCode 2
+        versionName "1.1"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -37,6 +37,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
-    implementation project(':libPlugin')
+//    implementation project(':libPlugin')
 
 }

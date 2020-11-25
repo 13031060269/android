@@ -56,7 +56,6 @@ public class PluginManager {
                     classLoader);
             PluginUtils.setFieldValue(mPackageInfo, "mClassLoader",
                     frameworkClassLoader, true);
-            createPlugInfo(new File(application.getApplicationInfo().sourceDir), null, classLoader);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -125,13 +124,7 @@ public class PluginManager {
         info = new PluginInfo();
         info.setId(id);
         File privateFile;
-        if (id == null) {
-            privateFile = pluginApk;
-        } else {
-            privateFile = new File(dexInternalStoragePath, id);
-        }
-
-
+        privateFile = new File(dexInternalStoragePath, id);
         info.setFilePath(privateFile.getAbsolutePath());
         String dexPath = privateFile.getAbsolutePath();
         if (fileMd5(pluginApk) != fileMd5(privateFile)) {

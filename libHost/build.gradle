@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion compileVersion
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
+        minSdkVersion minVersion
+        targetSdkVersion targetVersion
         versionCode 1
         versionName "1.0"
         consumerProguardFiles "consumer-rules.pro"
@@ -31,4 +31,7 @@ android {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7"
+    implementation 'com.linkedin.dexmaker:dexmaker:2.28.0'
+    compileOnly project(':libSoft')
 }

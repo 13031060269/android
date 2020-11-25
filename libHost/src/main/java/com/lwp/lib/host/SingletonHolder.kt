@@ -10,4 +10,6 @@ open class SingletonHolder<out T : Any, in A>(private val creator: (A) -> T) {
                 instance = this
             }
         }
+
+    fun getInstance(): T? = instance
 }
