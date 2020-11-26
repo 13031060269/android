@@ -1,6 +1,7 @@
 package com.lwp.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.ImageView
@@ -8,32 +9,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.lwp.lib.host.HostManager
+import dalvik.system.PathClassLoader
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 open class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val iv = ImageView(this)
-
         btn.setOnClickListener {
-//            PluginManager.getInstance().also {
-//                it.launch("/sdcard/test.apk", this)
-//            }
-            HostManager.launch(File("/sdcard/test.apk"))
+            GlobalScope.launch {
+                HostManager.launch(HostManager.install("/sdcard/test.apk"), this@MainActivity)
+
+            }
         }
         btn_2.setOnClickListener {
-            HostManager.launch(File("/sdcard/test2.apk"))
-//            PluginManager.getInstance().also {
-//                it.launch("/sdcard/test3.apk", this)
-//            }
+            GlobalScope.launch {
+                HostManager.launch(HostManager.install("/sdcard/test2.apk"), this@MainActivity)
+            }
         }
         btn_3.setOnClickListener {
-            HostManager.launch(File("/sdcard/test3.apk"))
-//            PluginManager.getInstance().also {
-//                it.launch("/sdcard/test3.apk", this)
-//            }
+//            HostManager.launch(File("/sdcard/test3.apk"))
+//            startActivity(Intent(this,MainActivity::class.java))
         }
         if (ContextCompat.checkSelfPermission(
                 this,

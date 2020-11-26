@@ -25,7 +25,7 @@ public class HostLayoutInflater extends LayoutInflater {
         super(context);
     }
 
-    HashMap<String, Constructor<? extends View>> sConstructorMap;
+    HashMap<String, Constructor<? extends View>> hashMap;
 
     protected HostLayoutInflater(LayoutInflater original, Context newContext) {
         super(original, newContext);
@@ -34,14 +34,6 @@ public class HostLayoutInflater extends LayoutInflater {
     @Override
     public LayoutInflater cloneInContext(Context newContext) {
         return new HostLayoutInflater(this, newContext);
-    }
-
-    @Override
-    public View inflate(XmlPullParser parser, ViewGroup root, boolean attachToRoot) {
-        clear();
-        View inflate = super.inflate(parser, root, attachToRoot);
-        clear();
-        return inflate;
     }
 
     @Override
@@ -55,36 +47,6 @@ public class HostLayoutInflater extends LayoutInflater {
             } catch (ClassNotFoundException ignored) {
             }
         }
-
         return super.onCreateView(name, attrs);
-    }
-
-
-    void clear() {
-        try {
-            synchronized (this) {
-                if (sConstructorMap == null) {
-                    Field sConstructorMap = LayoutInflater.class.getDeclaredField("sConstructorMap");
-                    sConstructorMap.setAccessible(true);
-                    this.sConstructorMap = (HashMap<String, Constructor<? extends View>>) sConstructorMap.get(null);
-                }
-                Iterator<Map.Entry<String, Constructor<? extends View>>> iterator = sConstructorMap.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    String name = iterator.next().getValue().getName();
-                    if (!name.startsWith("android.widget.")
-                            && !name.startsWith("android.view.")
-                            && !name.startsWith("android.webkit.")
-                    ) {
-                        iterator.remove();
-                    }
-                }
-//                iterator = sConstructorMap.entrySet().iterator();
-//                while (iterator.hasNext()) {
-//                    System.out.println("===================" + iterator.next().getValue().getName());
-//                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

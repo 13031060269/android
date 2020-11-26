@@ -19,13 +19,13 @@ internal class FrameworkClassLoader(private val baseClassLoader: ClassLoader) :
     @kotlin.jvm.Throws(ClassNotFoundException::class)
     fun loadClass(className: String, resolve: Boolean, notFound: Boolean): Class<*>? {
         var c: Class<*>? = null
-        if (curApk == null || notFound) {
+        if (apkId == null || notFound) {
             try {
                 return baseClassLoader.loadClass(className)
             } catch (e: Exception) {
             }
         } else {
-            c = curApk?.loadClass(className, resolve)
+            c = findApkInfo(apkId)?.loadClass(className, resolve)
         }
         if (c == null) {
             throw ClassNotFoundException(className)

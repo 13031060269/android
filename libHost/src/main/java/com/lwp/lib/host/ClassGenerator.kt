@@ -10,7 +10,6 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.view.ContextThemeWrapper
 import com.android.dx.*
 import java.io.File
 import java.lang.reflect.Field
@@ -23,9 +22,9 @@ internal object ClassGenerator {
 
     fun <S, D : S?> createActivityDex(
         superClassName: String,
-        apkInfo: ApkInfo
+        id: ApkInfo
     ): String {
-        val activityPath = File(apkInfo.activityPath(superClassName))
+        val activityPath = File(id.activityPath(superClassName))
         val dexMaker = DexMaker()
         val generatedType: TypeId<D> = TypeId.get(
             'L'.toString() + pluginActivity.replace(
@@ -36,7 +35,7 @@ internal object ClassGenerator {
         val superType: TypeId<S> =
             TypeId.get('L'.toString() + superClassName.replace('.', '/') + ';')
         dexMaker.declare(generatedType, "", Modifier.PUBLIC or Modifier.FINAL, superType)
-        declareFields(dexMaker, generatedType, apkInfo.id, apkInfo.packageName)
+        declareFields(dexMaker, generatedType, id.id, id.packageName)
         declare_constructor(dexMaker, generatedType, superType)
         declareMethod_onCreate(dexMaker, generatedType, superType)
         declareMethod_getAssets(dexMaker, generatedType, superType)
@@ -54,8 +53,8 @@ internal object ClassGenerator {
         declareLifeCyleMethod(dexMaker, generatedType, superType, "onStop")
         declareLifeCyleMethod(dexMaker, generatedType, superType, "onDestroy")
         declareMethod_attachBaseContext(dexMaker, generatedType, superType)
-        declareMethod_getComponentName(dexMaker, generatedType, superClassName)
-        declareMethod_getPackageName(dexMaker, generatedType, apkInfo.packageName)
+//        declareMethod_getComponentName(dexMaker, generatedType, superClassName)
+//        declareMethod_getPackageName(dexMaker, generatedType, id.packageName)
         declareMethod_getIntent(dexMaker, generatedType, superType)
         declareMethod_setTheme(dexMaker, generatedType, superType)
         HostUtils.saveToFile(dexMaker.generate(), activityPath)
@@ -64,13 +63,13 @@ internal object ClassGenerator {
 
     private fun <S, D : S?> declareFields(
         dexMaker: DexMaker, generatedType: TypeId<D>,
-        aokInfo: String, pkgName: String
+        id: String, pkgName: String
     ) {
-        val _aokInfo = generatedType.getField(
+        val _id = generatedType.getField(
             TypeId.STRING,
-            "_aokInfo"
+            "_id"
         )
-        dexMaker.declare(_aokInfo, Modifier.PRIVATE or Modifier.STATIC or Modifier.FINAL, aokInfo)
+        dexMaker.declare(_id, Modifier.PRIVATE or Modifier.STATIC or Modifier.FINAL, id)
         val _pkg = generatedType.getField(
             TypeId.STRING,
             "_pkg"
@@ -91,17 +90,17 @@ internal object ClassGenerator {
         dexMaker.declare(beforeOnCreate, Modifier.PRIVATE, null)
     }
 
-    private fun <D> get_aokInfo(
+    private fun <D> get_id(
         generatedType: TypeId<D>,
         methodCode: Code
     ): Local<String> {
-        val aokInfo = methodCode.newLocal(TypeId.STRING)
+        val id = methodCode.newLocal(TypeId.STRING)
         val fieldId = generatedType.getField(
             TypeId.STRING,
-            "_aokInfo"
+            "_id"
         )
-        methodCode.sget(fieldId, aokInfo)
-        return aokInfo
+        methodCode.sget(fieldId, id)
+        return id
     }
 
     private fun <S, D : S?> declareMethod_setTheme(
@@ -128,13 +127,13 @@ internal object ClassGenerator {
         val int0 = methodCode.newLocal(TypeId.INT)
         val lcoalonCreate = methodCode.newLocal(TypeId.BOOLEAN)
         val localFalse = methodCode.newLocal(TypeId.BOOLEAN)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         val onCreated = generatedType.getField(TypeId.BOOLEAN, FIELD_mOnCreated)
         methodCode.iget(onCreated, lcoalonCreate, localThis)
         val ifBeforeOnCreate = Label()
         methodCode.loadConstant(localFalse, false)
         methodCode.compare(Comparison.NE, ifBeforeOnCreate, lcoalonCreate, localFalse)
-        methodCode.invokeStatic(methodOverride, resId, localThis, aokInfo)
+        methodCode.invokeStatic(methodOverride, resId, localThis, id)
         methodCode.mark(ifBeforeOnCreate)
         //
         val if_resId = Label()
@@ -188,14 +187,14 @@ internal object ClassGenerator {
         val mtrc = methodCode.newLocal(DisplayMetrics)
         val cfg = methodCode.newLocal(Configuration)
         val resLocal = methodCode.newLocal(Resources)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         methodCode.loadConstant(index0, 0)
         methodCode.loadConstant(index1, 1)
         val methodOverride = activityOverriderTypeId.getMethod(
             ObjArr,
             "overrideAttachBaseContext", TypeId.STRING, TypeId.get(Activity::class.java), Context
         )
-        methodCode.invokeStatic(methodOverride, rsArr, aokInfo, localThis, base)
+        methodCode.invokeStatic(methodOverride, rsArr, id, localThis, base)
         methodCode.aget(rsArr0, rsArr, index0)
         methodCode.aget(rsArr1, rsArr, index1)
         methodCode.cast(newbase, rsArr0)
@@ -308,7 +307,7 @@ internal object ClassGenerator {
         val localThis = methodCode.getThis(generatedType)
         val localBundle = methodCode.getParameter(0, Bundle)
         val localCreated = methodCode.newLocal(TypeId.BOOLEAN)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         val beforeOnCreate = generatedType.getField(TypeId.BOOLEAN, FIELD_mOnCreated)
         methodCode.loadConstant(localCreated, true)
         methodCode.iput(beforeOnCreate, localThis, localCreated)
@@ -317,7 +316,7 @@ internal object ClassGenerator {
                 TypeId.VOID, "onCreate", TypeId.STRING,
                 TypeId.get(Activity::class.java)
             )
-        methodCode.invokeStatic(method_call_onCreate, null, aokInfo, localThis)
+        methodCode.invokeStatic(method_call_onCreate, null, id, localThis)
         val superMethod = superType.getMethod(
             TypeId.VOID, "onCreate",
             Bundle
@@ -416,18 +415,16 @@ internal object ClassGenerator {
             .getMethod(
                 intent, "overrideStartActivityForResult",
                 TypeId.get(Activity::class.java), TypeId.STRING,
-                intent, requestCode, bundle
+                intent
             )
         val localThis = methodCode.getThis(generatedType)
         val newIntent = methodCode.newLocal(intent)
-        val nullParamBundle = methodCode.newLocal(bundle)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
-        methodCode.loadConstant(nullParamBundle, null)
+//        val nullParamBundle = methodCode.newLocal(bundle)
+        val id = get_id(generatedType, methodCode)
+//        methodCode.loadConstant(nullParamBundle, null)
         val args: Array<Local<*>>
         args = arrayOf(
-            localThis, aokInfo, methodCode.getParameter(0, intent) //
-            , methodCode.getParameter(1, requestCode) //
-            , methodCode.getParameter(2, bundle) //
+            localThis, id, methodCode.getParameter(0, intent) //
         )
         methodCode.invokeStatic(methodOverride, newIntent, *args)
         methodCode.invokeSuper(
@@ -454,7 +451,7 @@ internal object ClassGenerator {
         val localThis = methodCode.getThis(generatedType)
         val localBool = methodCode.newLocal(TypeId.BOOLEAN)
         val localFalse = methodCode.newLocal(TypeId.BOOLEAN)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         methodCode.loadConstant(localFalse, false)
         val methodOverride = activityOverriderTypeId
             .getMethod(
@@ -463,7 +460,7 @@ internal object ClassGenerator {
                 TypeId.get(Activity::class.java),
                 TypeId.STRING
             )
-        methodCode.invokeStatic(methodOverride, localBool, localThis, aokInfo)
+        methodCode.invokeStatic(methodOverride, localBool, localThis, id)
         // codeBlock: if start
         val localBool_isInvokeSuper = Label()
         methodCode.compare(
@@ -503,11 +500,11 @@ internal object ClassGenerator {
         val methodCode = dexMaker.declare(method, Modifier.PUBLIC)
         val localThis = methodCode.getThis(generatedType)
         val localComponentName = methodCode.newLocal(returnType)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         methodCode.invokeStatic(
             methodOverride,
             localComponentName //
-            , localThis, aokInfo, methodCode.getParameter(0, Intent)
+            , localThis, id, methodCode.getParameter(0, Intent)
         )
         methodCode.returnValue(localComponentName)
     }
@@ -540,13 +537,13 @@ internal object ClassGenerator {
         // locals
         val localThis = methodCode.getThis(generatedType)
         val localBool = methodCode.newLocal(returnType)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         methodCode.invokeStatic(
             methodOveride,
             localBool //
             ,
             localThis,
-            aokInfo,
+            id,
             methodCode.getParameter(0, Intent),
             methodCode.getParameter(1, Conn),
             methodCode.getParameter(2, TypeId.INT)
@@ -576,11 +573,11 @@ internal object ClassGenerator {
             )
         val methodCode = dexMaker.declare(method, Modifier.PUBLIC)
         val localThis = methodCode.getThis(generatedType)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         methodCode.invokeStatic(
             methodOverride,
             null //
-            , localThis, aokInfo, methodCode.getParameter(0, Conn)
+            , localThis, id, methodCode.getParameter(0, Conn)
         )
         methodCode.returnVoid()
     }
@@ -611,11 +608,11 @@ internal object ClassGenerator {
         // locals
         val localThis = methodCode.getThis(generatedType)
         val localBool = methodCode.newLocal(returnType)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         methodCode.invokeStatic(
             methodOveride,
             localBool //
-            , localThis, aokInfo, methodCode.getParameter(0, Intent)
+            , localThis, id, methodCode.getParameter(0, Intent)
         )
         methodCode.returnValue(localBool)
     }
@@ -634,7 +631,7 @@ internal object ClassGenerator {
         val methodCode = dexMaker.declare(method, Modifier.PROTECTED)
         // locals
         val localThis = methodCode.getThis(generatedType)
-        val aokInfo = get_aokInfo(generatedType, methodCode)
+        val id = get_id(generatedType, methodCode)
         val superMethod = superType.getMethod(
             TypeId.VOID,
             methodName
@@ -645,7 +642,7 @@ internal object ClassGenerator {
                 TypeId.VOID, methodName,
                 TypeId.STRING, TypeId.get(Activity::class.java)
             )
-        methodCode.invokeStatic(methodOverride, null, aokInfo, localThis)
+        methodCode.invokeStatic(methodOverride, null, id, localThis)
         methodCode.returnVoid()
     }
 }
@@ -654,25 +651,22 @@ internal class ActivityOverrider {
     companion object {
         @JvmStatic
         fun overrideStartActivityForResult(
-            fromAct: Activity?, aokInfo: String?, intent: Intent, requestCode: Int,
-            options: Bundle?
+            fromAct: Activity, id: String, intent: Intent
         ): Intent {
-            return apkMap[aokInfo]?.startActivityForResult(fromAct, intent, requestCode, options)
-                ?: intent
+            return HostManager.startActivityForResult(fromAct, id, intent)
         }
 
         @JvmStatic
         fun overrideAttachBaseContext(
-            aokInfo: String?,
-            fromAct: Activity?,
-            base: Context?
+            apkId: String,
+            fromAct: Activity,
+            base: Context
         ): Array<Any?>? {
-            val plugin = apkMap[aokInfo] ?: return null
-            return plugin.attachBaseContext(base)
+            return findApkInfo(apkId)?.attachBaseContext(fromAct, base)
         }
 
         @JvmStatic
-        private fun changeActivityInfo(apkInfo: ApkInfo?, activity: Context) {
+        private fun changeActivityInfo(id: ApkInfo?, activity: Context) {
             val actName = activity.javaClass.superclass!!.name
             if (activity.javaClass.name != pluginActivity) {
                 return
@@ -684,7 +678,7 @@ internal class ActivityOverrider {
             } catch (e: Exception) {
                 return
             }
-            val actInfo = apkInfo?.findActivityByClassName(actName)
+            val actInfo = id?.findActivityByClassName(actName)
             try {
                 fieldActivityInfo[activity] = actInfo
             } catch (e: Exception) {
@@ -693,8 +687,8 @@ internal class ActivityOverrider {
         }
 
         @JvmStatic
-        fun getPlugActivityTheme(fromAct: Activity, aokInfo: String?): Int {
-            val plugin = apkMap[aokInfo]
+        fun getPlugActivityTheme(fromAct: Activity, id: String): Int {
+            val plugin = findApkInfo(id)
             val actName = fromAct.javaClass.superclass!!.name
             val actInfo = plugin?.findActivityByClassName(actName)
             val rs = actInfo!!.themeResource
@@ -703,84 +697,84 @@ internal class ActivityOverrider {
         }
 
         @JvmStatic
-        fun overrideOnBackPressed(fromAct: Activity, aokInfo: String?): Boolean {
-            val plInfo = apkMap[aokInfo]
+        fun overrideOnBackPressed(fromAct: Activity, id: String): Boolean {
+            val plInfo = findApkInfo(id)
             val actName = fromAct.javaClass.superclass!!.name
             val actInfo = plInfo?.findActivityByClassName(actName)
             return true
         }
 
         @JvmStatic
-        fun onCreate(aokInfo: String?, fromAct: Activity) {
-            val apkInfo = apkMap[aokInfo]
+        fun onCreate(id: String, fromAct: Activity) {
+            val id = findApkInfo(id)
             try {
                 val applicationField = Activity::class.java
                     .getDeclaredField("mApplication")
                 applicationField.isAccessible = true
-                applicationField[fromAct] = apkInfo?.application
+                applicationField[fromAct] = id?.application
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            val actName = fromAct.javaClass.superclass!!.name
-            val actInfo = apkInfo?.findActivityByClassName(actName)
-            val resTheme = actInfo!!.themeResource
-            if (resTheme != 0) {
-                var hasNotSetTheme = true
-                try {
-                    val mTheme = ContextThemeWrapper::class.java
-                        .getDeclaredField("mTheme")
-                    mTheme.isAccessible = true
-                    hasNotSetTheme = mTheme[fromAct] == null
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-                if (hasNotSetTheme) {
-                    changeActivityInfo(apkInfo, fromAct)
-                    fromAct.setTheme(resTheme)
-                }
-            }
-            try {
-                val window = fromAct.window
-                val origInf: Any = HostUtils.getFieldValue(window, "mLayoutInflater", true)
-                if (origInf !is HostLayoutInflater) {
-                    HostUtils.setFieldValue(
-                        window, "mLayoutInflater",
-                        apkInfo.inflater, true
-                    )
-                }
-            } catch (e: java.lang.Exception) {
-            }
-            apkInfo.lifeCycle.onCreate(fromAct)
+//            val actName = fromAct.javaClass.superclass!!.name
+//            val actInfo = id?.findActivityByClassName(actName)
+//            val resTheme = actInfo!!.themeResource
+//            if (resTheme != 0) {
+//                var hasNotSetTheme = true
+//                try {
+//                    val mTheme = ContextThemeWrapper::class.java
+//                        .getDeclaredField("mTheme")
+//                    mTheme.isAccessible = true
+//                    hasNotSetTheme = mTheme[fromAct] == null
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//                if (hasNotSetTheme) {
+//                    changeActivityInfo(id, fromAct)
+//                    fromAct.setTheme(resTheme)
+//                }
+//            }
+//            try {
+//                val window = fromAct.window
+//                val origInf: Any = HostUtils.getFieldValue(window, "mLayoutInflater", true)
+//                if (origInf !is HostLayoutInflater) {
+//                    HostUtils.setFieldValue(
+//                        window, "mLayoutInflater",
+//                        id.inflater, true
+//                    )
+//                }
+//            } catch (e: java.lang.Exception) {
+//            }
+            id?.lifeCycle?.onCreate(fromAct)
         }
 
         @JvmStatic
-        fun onResume(aokInfo: String?, fromAct: Activity) {
-            apkMap[aokInfo]?.lifeCycle?.onResume(fromAct)
+        fun onResume(id: String, fromAct: Activity) {
+            findApkInfo(id)?.lifeCycle?.onResume(fromAct)
         }
 
         @JvmStatic
-        fun onStart(aokInfo: String?, fromAct: Activity) {
-            apkMap[aokInfo]?.lifeCycle?.onStart(fromAct)
+        fun onStart(id: String, fromAct: Activity) {
+            findApkInfo(id)?.lifeCycle?.onStart(fromAct)
         }
 
         @JvmStatic
-        fun onRestart(aokInfo: String?, fromAct: Activity) {
-            apkMap[aokInfo]?.lifeCycle?.onRestart(fromAct)
+        fun onRestart(id: String, fromAct: Activity) {
+            findApkInfo(id)?.lifeCycle?.onRestart(fromAct)
         }
 
         @JvmStatic
-        fun onPause(aokInfo: String?, fromAct: Activity) {
-            apkMap[aokInfo]?.lifeCycle?.onPause(fromAct)
+        fun onPause(id: String, fromAct: Activity) {
+            findApkInfo(id)?.lifeCycle?.onPause(fromAct)
         }
 
         @JvmStatic
-        fun onStop(aokInfo: String?, fromAct: Activity) {
-            apkMap[aokInfo]?.lifeCycle?.onStop(fromAct)
+        fun onStop(id: String, fromAct: Activity) {
+            findApkInfo(id)?.lifeCycle?.onStop(fromAct)
         }
 
         @JvmStatic
-        fun onDestroy(aokInfo: String?, fromAct: Activity) {
-            apkMap[aokInfo]?.lifeCycle?.onDestroy(fromAct)
+        fun onDestroy(id: String, fromAct: Activity) {
+            findApkInfo(id)?.lifeCycle?.onDestroy(fromAct)
         }
     }
 }

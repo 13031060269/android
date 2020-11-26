@@ -1,14 +1,17 @@
 package com.lwp.lib.host
 
+import android.app.Activity
 import android.app.Application
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
+import java.lang.RuntimeException
+import java.lang.ref.WeakReference
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -20,10 +23,17 @@ const val activitiesPath = "/activities/"
 const val apkPath = "/base.apk"
 const val optimized = "/optimized"
 const val pluginActivity = "com.lwp.lib.host.PluginActivity"
-internal val apkMap = HashMap<String, ApkInfo>()
-internal var curApk: ApkInfo? = null
+internal val idMap = HashMap<String?, WeakReference<ApkInfo>>()
+internal val pkgMap = HashMap<String?, WeakReference<ApkInfo>>()
+
+@Volatile
+internal var apkId: String? = null
 internal lateinit var hostPackageName: String
-internal lateinit var hostActivityInfo: ActivityInfo
+internal lateinit var hostComponentName: ComponentName
+internal val hostPMS = HostServiceManager()
+internal fun findApkInfo(tag: String?): ApkInfo? {
+    return idMap[tag]?.get() ?: pkgMap[tag]?.get()
+}
 
 object HostManager {
     private lateinit var frameworkClassLoader: FrameworkClassLoader
@@ -31,14 +41,10 @@ object HostManager {
     private lateinit var application: Application
 
     fun init(application: Application) {
+        hostPMS.hookPMS(application.baseContext)
         this.application = application
-        val baseContext = application.baseContext
-//        println("2222222222222222222="+baseContext.javaClass)
         hostPackageName = application.packageName
-        hostActivityInfo = ActivityInfo().apply {
-            name = pluginActivity
-            packageName = hostPackageName
-        }
+        hostComponentName = ComponentName(hostPackageName, pluginActivity)
         val optimizedDexPath = application.getDir("apkList", Context.MODE_PRIVATE)
         optimizedDexPath.mkdirs()
         outputPath = optimizedDexPath.absolutePath
@@ -57,15 +63,46 @@ object HostManager {
         )
     }
 
+    fun startActivityForResult(fromAct: Activity, id: String, intent: Intent): Intent {
+        return intent.apply {
+            component?.apply {
+                findActivityInfo(intent.component)?.apply {
+                    component = hostComponentName
+                    findApkInfo(packageName)!!.push(this)
+                }
+            }
+        }
+    }
+
+    private fun findActivityInfoByName(name: String): ActivityInfo? {
+        idMap.values.forEach {
+            it.get()?.findActivityByClassName(name)?.apply {
+                return this
+            }
+        }
+        return null
+    }
+
+    internal fun findActivityInfo(componentName: ComponentName): ActivityInfo? {
+        return findActivityInfo(componentName.packageName, componentName) ?: findActivityInfoByName(
+            componentName.className
+        )
+    }
+
+    private fun findActivityInfo(id: String, componentName: ComponentName): ActivityInfo? {
+        return findApkInfo(id)?.findActivity(componentName)
+    }
+
+
     fun application(): Application = application
 
     fun dir(id: String) = "$outputPath/$id$dir"
 
     @Throws(Exception::class)
-    fun launch(apkFile: File) {
-        GlobalScope.launch {
+    suspend fun install(path: String): String {
+        return withContext(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
-                if (!apkFile.exists() || !apkFile.isFile) return@withContext
+                val apkFile = File(path)
                 application.packageManager
                     .getPackageArchiveInfo(
                         apkFile.absolutePath,
@@ -76,10 +113,9 @@ object HostManager {
                                 or PackageManager.GET_SHARED_LIBRARY_FILES //
                                 or PackageManager.GET_SERVICES //
                                 or PackageManager.GET_SIGNATURES //
-                    )?.apply {
-//                        val id = packageName
+                    )?.run {
                         val id = "${packageName}_${versionName}_$versionCode"
-                        if (apkMap[id] == null) {
+                        if (idMap[id]?.get() == null) {
                             val dir = File(outputPath, id + dir)
                             val libDir = File(dir, libPath)
                             dir.mkdirs()
@@ -88,7 +124,7 @@ object HostManager {
                             File(dir, optimized).mkdirs()
                             libDir.mkdirs()
                             val privateFile = File(dir, apkPath)
-                            if (!privateFile.exists()) {
+                            if (!privateFile.exists() || BuildConfig.DEBUG) {
                                 HostUtils.saveToFile(apkFile, privateFile)
                             }
                             try {
@@ -97,15 +133,24 @@ object HostManager {
                                 }
                             } catch (e: Exception) {
                             }
-                            val apkInfo =
-                                ApkInfo(this@HostManager, id, this, frameworkClassLoader)
-                            apkInfo.attach(application)
-                            apkMap[id] = apkInfo
+
+                            ApkInfo(this@HostManager, id, this, frameworkClassLoader).apply {
+                                attach(HostManager.application)
+                                val weak = WeakReference(this)
+                                idMap[id] = weak
+                                pkgMap[packageName] = weak
+                            }
                         }
-                        apkMap[id]?.launch(application)
-                    }
+                        id
+                    } ?: run {
+                    throw RuntimeException("创建插件失败！！！$path")
+                }
             }
         }
+    }
+
+    fun launch(pkg: String, activity: Activity) {
+        findApkInfo(pkg)!!.launch(activity)
     }
 
     @Throws(IOException::class)

@@ -1,7 +1,7 @@
 package com.lwp.lib.host
 
-import android.app.Activity
-import android.app.Application
+import android.app.*
+import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -10,6 +10,8 @@ import android.content.res.AssetManager
 import android.content.res.PluginResource
 import android.content.res.Resources
 import android.os.Bundle
+import android.os.UserHandle
+import com.lwp.lib.host.HostManager.startActivityForResult
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -100,6 +102,11 @@ internal class ApkInfo(
         }
     }
 
+    fun push(activityInfo: ActivityInfo) {
+        apkId = id
+        stack.push(activityInfo)
+    }
+
     suspend fun attach(context: Application) {
         withContext(Dispatchers.Main) {
             val name = packageInfo.applicationInfo?.name
@@ -137,7 +144,10 @@ internal class ApkInfo(
             }
             return actLoader.loadClass(className, resolve)
         }
-        var result = findLoadedClass(className)
+        var result: Class<*>? = null
+        if (result == null) {
+            result = findLoadedClass(className)
+        }
         if (result == null) {
             try {
                 result = findClass(className)
@@ -160,48 +170,56 @@ internal class ApkInfo(
     }
 
     fun findActivityByClassName(activityName: String): ActivityInfo? {
-        var result: ActivityInfo? = null
         packageInfo.activities?.forEach {
             it?.apply {
                 if (name == activityName) {
                     applicationInfo = packageInfo.applicationInfo
-                    result = this
-                    return@forEach
+                    return this
                 }
             }
         }
-        return result
+        return null
     }
 
-
-    fun startActivityForResult(
-        fromAct: Activity?, intent: Intent, requestCode: Int,
-        options: Bundle?
-    ): Intent {
-        packageInfo.activities.forEach {
+    fun findActivity(componentName: ComponentName): ActivityInfo? {
+        packageInfo.activities?.forEach {
             it?.apply {
-                if (packageName == intent.component?.packageName && intent.component?.className == name) {
-                    intent.setClassName(hostPackageName, pluginActivity)
-                    stack.push(this)
-                    curApk = this@ApkInfo
+                if (packageName == componentName.packageName && name == componentName.className) {
+                    applicationInfo = packageInfo.applicationInfo
+                    return this
                 }
             }
         }
-        return intent
+        return null
     }
 
-    fun launch(context: Context) {
-        curApk = this
+
+    fun launch(activity: Activity) {
         launchActivityInfo?.apply {
-            val intent = Intent()
-            intent.setClassName(packageName, activityInfo.name)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            context.startActivity(startActivityForResult(null, intent, 0, null))
+            launch(activity, Intent().apply {
+                component = ComponentName(packageName, activityInfo.name)
+            }, -1, null)
         }
+
     }
 
-    fun attachBaseContext(base: Context?): Array<Any?> {
-        val actWrapper = HostWrapper(base, ctxWrapper, this)
+    private fun launch(activity: Activity, intent: Intent, requestCode: Int, options: Bundle?) {
+        activity.startActivityForResult(
+            startActivityForResult(activity, id, intent),
+            requestCode,
+            options
+        )
+    }
+
+    fun attachBaseContext(romAct: Activity, base: Context): Array<Any?>? {
+        val superclass = romAct::class.java.superclass
+        var activityInfo: ActivityInfo? = null
+        resolvers.forEach {
+            if (it.activityInfo.name == superclass?.name) {
+                activityInfo = it.activityInfo
+            }
+        }
+        val actWrapper = HostWrapper(ctxWrapper, activityInfo!!)
         return arrayOf(actWrapper, mAssetManager)
     }
 
@@ -209,8 +227,9 @@ internal class ApkInfo(
         ContextWrapper(base) {
         private val mTheme =
             mResources.newTheme().apply { applyStyle(packageInfo.applicationInfo.theme, false) }
-        private val packageManager =
-            ApkPackageManager(super.getPackageManager(), this@ApkInfo)
+
+        //        private val packageManager =
+//            ApkPackageManager(super.getPackageManager(), this@ApkInfo)
         private val fileDir: File = File(dir, "/files/")
 
         override fun getSystemService(name: String): Any? {
@@ -220,9 +239,16 @@ internal class ApkInfo(
             return super.getSystemService(name)
         }
 
-        override fun getPackageManager(): PackageManager {
-            return packageManager
+        @Throws(PackageManager.NameNotFoundException::class)
+        fun createPackageContextAsUser(
+            packageName: String?, flags: Int, user: UserHandle?
+        ): Context? {
+            return this
         }
+
+//        override fun getPackageManager(): PackageManager {
+//            return packageManager
+//        }
 
         override fun getFilesDir(): File {
             if (!fileDir.exists()) {
@@ -235,13 +261,13 @@ internal class ApkInfo(
             return packageInfo.applicationInfo
         }
 
-        override fun getApplicationContext(): Context {
-            return application
-        }
+//        override fun getApplicationContext(): Context {
+//            return application
+//        }
 
-        override fun getPackageName(): String {
-            return applicationInfo.packageName
-        }
+//        override fun getPackageName(): String {
+//            return applicationInfo.packageName
+//        }
 
         override fun getResources(): Resources = mResources
 
@@ -296,16 +322,23 @@ internal class ApkInfo(
         }
 
         override fun onRestart(pluginAct: Activity) {
-            curApk = this@ApkInfo
+            apkId = id
+            var activityInfo: ActivityInfo = stack.peek()
+            while (stack.isNotEmpty() && activityInfo.name != pluginAct::class.java.superclass.name) {
+                stack.pop()
+                activityInfo = stack.peek()
+            }
         }
 
         override fun onStop(pluginAct: Activity) {
+
         }
 
         override fun onDestroy(pluginAct: Activity) {
             count--
-            if (count == 0 && curApk == this@ApkInfo) {
-                curApk = null
+            if (count == 0 && apkId == id) {
+                apkId = null
+                stack.clear()
             }
         }
     }
