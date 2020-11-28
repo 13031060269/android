@@ -1,0 +1,151 @@
+apply plugin: 'com.android.application'
+
+//添加插件
+//apply plugin: 'com.growingio.android'
+
+apply plugin: 'walle'
+
+apply plugin: 'com.sensorsdata.analytics.android'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+/**
+ * Run Proguard to shrink the Java bytecode in release builds.
+ */
+//def enableProguardInReleaseBuilds = true
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+    signingConfigs {
+        release {
+            storeFile file(STOREFILE)
+            storePassword KEYPASSWORD
+            keyAlias KEYALIAS
+            keyPassword KEYPASSWORD
+        }
+    }
+    defaultConfig {
+        applicationId "com.hfax.ucard"
+        multiDexEnabled true
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 20190114
+        versionName "1.1.1"
+        signingConfig signingConfigs.release
+        flavorDimensions "versionCode"
+        resValue "string", "CODE_PUSH_APK_BUILD_TIME", new Date().time + ""
+        multiDexKeepProguard file('multidex.pro')
+        resConfigs('zh-rCN')
+    }
+    if (project.hasProperty("buildNumber")) {
+        def buildNumber = project.buildNumber.toInteger()
+        defaultConfig {
+            versionCode buildNumber
+        }
+    }
+    if (project.hasProperty("buildVersionName")) {
+        def buildVersionName = project.buildVersionName
+        defaultConfig {
+            versionName buildVersionName
+        }
+    }
+
+    println("--------------------------------")
+    println("versionCode:" + defaultConfig.versionCode)
+    println("--------------------------------")
+
+    buildTypes {
+        debug {
+            debuggable true
+//            minifyEnabled true
+//            zipAlignEnabled true
+//            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            manifestPlaceholders = [
+                    BUGLY_APP_ID    : "239a70bd15",
+                    GETUI_APP_ID    : "KtvJkxJ6IV7J01F1uY4X31",
+                    GETUI_APP_KEY   : "qOqV7ST0SL6Rm4ZjFNw7S7",
+                    GETUI_APP_SCHEME: "sa97ff78a1",
+                    GETUI_APP_SECRET: "GNxbJ4SZde68oEW9yOkUM9"
+            ]
+//            resValue("string", "growingio_project_id", "a2750ad1e2a2f10e")
+//            resValue("string", "growingio_url_scheme", "growing.b83866026f23517c")
+            buildConfigField "String", "CODE_PUSH_KEY", '"8nD9usUX2EnnNQAO3CvbEf7gkbri4ksvOXqog"'
+            multiDexKeepProguard file('multidex.pro')
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a", "x86"
+            }
+        }
+        release {
+            debuggable false
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            zipAlignEnabled true
+            shrinkResources true
+            manifestPlaceholders = [
+                    BUGLY_APP_ID    : "2dbd1f4a27",
+                    GETUI_APP_ID    : "eEvwqvmPmK6ftFEaAJWmTA",
+                    GETUI_APP_KEY   : "qVVFTR1wHG6BI9mbr9w925",
+                    GETUI_APP_SCHEME: "saf8ca2e0d",
+                    GETUI_APP_SECRET: "AExGErP4jD7ptIDnkaSa9"
+            ]
+//            resValue("string", "growingio_project_id", "a2750ad1e2a2f10e")
+//            resValue("string", "growingio_url_scheme", "growing.822aa767eb944371")
+            buildConfigField "String", "CODE_PUSH_KEY", '"NKXcmAjuLfpSP1qsCCHmAdjquXfO4ksvOXqog"'
+            multiDexKeepProguard file('multidex.pro')
+            ndk {
+                abiFilters "armeabi", "armeabi-v7a"
+            }
+        }
+    }
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDir(['libs', 'build/libs'])
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+    kapt 'com.jakewharton:butterknife-compiler:8.6.0'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.tencent.bugly:crashreport_upgrade:1.3.9'
+    implementation('com.hfax.lib:common-android:1.2.7.5') {
+        exclude(group: 'com.hfax.lib', module: 'oss-android')
+        exclude(group: 'com.foamtrace', module: 'photopicker')
+        exclude(group: 'com.android.support', module: 'design')
+    }
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.hfax.lib:face-android:0.2.5'
+    //智齿IM
+    implementation 'com.sobot.chat:sobotsdk:2.7.4'
+//    implementation project(':facelibrary')
+
+    implementation 'com.meituan.android.walle:library:1.1.6'
+    implementation 'com.sensorsdata.analytics.android:SensorsAnalyticsSDK:3.2.0'
+
+    implementation 'com.getui:sdk-for-google-play:4.3.8.0'
+    implementation(name: 'fraudmetrix-3.2.4', ext: 'aar')
+    implementation(name: 'qipeng-captcha-v1.0.2', ext: 'aar')
+    implementation(name: 'miit_mdid_1.0.9', ext: 'aar')
+}
+walle {
+    // 指定渠道包的输出路径
+    apkOutputFolder = new File("${project.buildDir}/outputs/apk");
+    // 定制渠道包的APK的文件名称
+    apkFileNameFormat = 'app-${channel}-${buildType}-v${versionName}-v${versionCode}.apk';
+    // 渠道配置文件
+    configFile = new File("${project.getProjectDir()}/config.json")
+}

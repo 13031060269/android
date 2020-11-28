@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_confirm_info"
+        android:gravity="center"
+        android:paddingBottom="18dp"
+        android:paddingTop="18dp"
+        android:text="还款信息确认"
+        android:textColor="@color/white"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="24dp"
+        android:paddingBottom="9dp"
+        android:textColor="#363349"
+        android:textSize="13sp"
+        android:text="还款总额" />
+
+    <TextView
+        android:id="@+id/tv_value_1"
+        android:layout_width="wrap_content"
+        android:layout_height="33dp"
+        android:text="--元"
+        android:gravity="center"
+        android:textColor="#FF363349"
+        android:layout_marginBottom="26dp"
+        android:textSize="24sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center_vertical">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E0E0E0" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:text="请确保卡内余额充足"
+            android:textColor="@color/authorize_tip_color"
+            android:textSize="11sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E0E0E0" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp"
+            android:text="取消"
+            android:textColor="#3A3C48"
+            android:textSize="15sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:background="#E0E0E0" />
+
+        <TextView
+            android:id="@+id/tv_submit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp"
+            android:text="确认还款"
+            android:textColor="#E98129"
+            android:textSize="15sp" />
+    </LinearLayout>
+</LinearLayout>

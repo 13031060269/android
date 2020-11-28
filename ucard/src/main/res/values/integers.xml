@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="default_anim_duration">300</integer>
+    <integer name="progressbar_circle_anim_duration">100</integer>
+    <integer name="refresh_header_view_anim_duration">50</integer>
+
+    <!--验证码最大长度-->
+    <integer name="auth_code_size">6</integer>
+</resources>

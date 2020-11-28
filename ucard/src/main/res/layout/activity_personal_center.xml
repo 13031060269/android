@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg"
+    android:orientation="vertical">
+
+    <include layout="@layout/base_title" />
+
+    <LinearLayout
+        android:id="@+id/ll_permission"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="8dp"
+        android:background="#FFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="权限授权管理"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="19dp"
+            android:src="@drawable/icon_navigation_gray_normal" />
+    </LinearLayout>
+
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginBottom="11dp" />
+
+    <LinearLayout
+        android:id="@+id/ll_bankcard"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#FFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="我的银行卡"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="19dp"
+            android:src="@drawable/icon_navigation_gray_normal" />
+    </LinearLayout>
+
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginBottom="11dp" />
+
+    <LinearLayout
+        android:id="@+id/ll_account"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#FFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="我的账户"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="19dp"
+            android:src="@drawable/icon_navigation_gray_normal" />
+    </LinearLayout>
+
+    <View style="@style/HorizontalLineStyleGray_1dp" />
+
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginTop="86dp" />
+
+    <TextView
+        android:id="@+id/tv_center_logout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#FFF"
+        android:gravity="center"
+        android:text="退出登录"
+        android:textColor="#FFFD8013"
+        android:textSize="16sp" />
+    <View style="@style/HorizontalLineStyleGray_1dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="21dp"
+        android:orientation="horizontal">
+
+        <com.hfax.ucard.widget.PhoneTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/phone"
+            android:textColor="#FF666666"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>

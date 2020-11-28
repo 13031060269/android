@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_title_return"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="17dp"
+        android:padding="15dp"
+        android:src="@drawable/selector_back" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/page_bg"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:text="输入短信验证码"
+                android:textColor="#FF444757"
+                android:textSize="22sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="短信验证码已发送至"
+                    android:textColor="#FFA0A0A0"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:textColor="#FF565969"
+                    android:textSize="14sp"
+                    tools:text="137 0102 9863" />
+            </LinearLayout>
+
+            <com.hfax.ucard.widget.AuthCodeView
+                android:id="@+id/auto_code_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="50dp" />
+
+            <LinearLayout
+                android:layout_marginTop="-24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_normal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="重新获取验证码"
+                    android:textColor="#FF3A80FF"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="60"
+                    android:textColor="#565969"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_count_suffix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="秒后可重新获取"
+                    android:textColor="#A0A0A0"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cb_contract"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:button="@null"
+                    android:checked="true"
+                    android:drawableLeft="@drawable/cb_login"
+                    android:drawablePadding="4dp"
+                    android:gravity="center"
+                    android:text="我已阅读并同意"
+                    android:textColor="#A0A0A0"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_contract"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="隐私和服务协议"
+                    android:textColor="#3A80FF"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="若尚未注册，输入验证码后系统将自动为您注册平台账号"
+                android:textColor="#FFA0A0A0"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_submit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/selector_btn_important"
+                android:enabled="false"
+                android:gravity="center"
+                android:text="登录 / 注册"
+                android:textColor="#FFFFFFFF"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.hfax.ucard.widget.KeyboardView
+        android:id="@+id/keyboard_recycle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E6D2D5DB" />
+
+</LinearLayout>

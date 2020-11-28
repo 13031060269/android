@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg"
+    android:orientation="vertical">
+
+    <include layout="@layout/base_title" />
+    <LinearLayout
+        android:id="@+id/ll_real_name_authentication"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_marginTop="8dp"
+        android:background="#FFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="实名认证"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_have_not"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="19dp"
+            android:text="未认证"
+            android:textColor="#FFFD8013"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/ll_have_name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="张**"
+                android:textColor="#FF363349"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="19dp"
+                android:src="@drawable/icon_navigation_gray_normal" />
+        </LinearLayout>
+    </LinearLayout>
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginLeft="24dp"/>
+    <LinearLayout
+        android:id="@+id/ll_change_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#FFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="修改登录密码"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="19dp"
+            android:src="@drawable/icon_navigation_gray_normal" />
+    </LinearLayout>
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginBottom="22dp" />
+    <LinearLayout
+        android:id="@+id/ll_unsubscribe"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#FFF"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="注销账户"
+            android:textColor="#FF666666"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="19dp"
+            android:src="@drawable/icon_navigation_gray_normal" />
+    </LinearLayout>
+</LinearLayout>

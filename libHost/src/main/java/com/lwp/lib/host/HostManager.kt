@@ -6,6 +6,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.*
+import android.content.res.Resources
+import android.util.ArrayMap
+import android.view.View
+import com.lwp.lib.host.classloader.FrameworkClassLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -17,40 +21,39 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import kotlin.collections.HashMap
 
-const val libPath = "/lib"
-private const val dir = "_dir"
-const val activitiesPath = "/activities/"
-const val apkPath = "/base.apk"
-const val optimized = "/optimized"
-const val pluginActivity = "com.lwp.lib.host.PluginActivity"
-internal val idMap = HashMap<String?, WeakReference<ApkInfo>>()
-internal val pkgMap = HashMap<String?, WeakReference<ApkInfo>>()
+internal val idMap = HashMap<String?, WeakReference<ApkControl>>()
+internal val pkgMap = HashMap<String?, WeakReference<ApkControl>>()
 
 @Volatile
 internal var apkId: String? = null
 internal lateinit var hostPackageName: String
+internal lateinit var hostActivityInfo: ActivityInfo
 internal lateinit var hostComponentName: ComponentName
-internal val hostPMS = HostServiceManager()
-internal fun findApkInfo(tag: String?): ApkInfo? {
+internal lateinit var frameworkClassLoader: FrameworkClassLoader
+internal lateinit var resources: Resources
+
+//internal val hostPMS = HostServiceManager()
+internal val viewMap = ArrayMap<String, Class<out View>>()
+internal fun findApkInfo(tag: String?): ApkControl? {
     return idMap[tag]?.get() ?: pkgMap[tag]?.get()
 }
 
+internal val view = View::class.java
+
 object HostManager {
-    private lateinit var frameworkClassLoader: FrameworkClassLoader
-    lateinit var outputPath: String
+
     private lateinit var application: Application
 
     fun init(application: Application) {
-        hostPMS.hookPMS(application.baseContext)
+        HostServiceManager.hookPMS(application)
+        initFirst(application)
         this.application = application
+        resources = application.resources
         hostPackageName = application.packageName
         hostComponentName = ComponentName(hostPackageName, pluginActivity)
-        val optimizedDexPath = application.getDir("apkList", Context.MODE_PRIVATE)
-        optimizedDexPath.mkdirs()
-        outputPath = optimizedDexPath.absolutePath
-        val dexInternalStoragePath = application
-            .getDir("plugins", Context.MODE_PRIVATE)
-        dexInternalStoragePath.mkdirs()
+        hostActivityInfo = ActivityInfo()
+        hostActivityInfo.packageName=hostPackageName
+        hostActivityInfo.name= pluginActivity
         val mPackageInfo: Any = HostUtils.getFieldValue(
             application,
             "mBase.mPackageInfo", true
@@ -96,10 +99,8 @@ object HostManager {
 
     fun application(): Application = application
 
-    fun dir(id: String) = "$outputPath/$id$dir"
-
     @Throws(Exception::class)
-    suspend fun install(path: String): String {
+    suspend fun install(path: String, arch: String = ""): String {
         return withContext(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
                 val apkFile = File(path)
@@ -116,7 +117,10 @@ object HostManager {
                     )?.run {
                         val id = "${packageName}_${versionName}_$versionCode"
                         if (idMap[id]?.get() == null) {
-                            val dir = File(outputPath, id + dir)
+                            val dir = File(dir(id))
+                            if (DEBUG) {
+                                clear(id, packageName)
+                            }
                             val libDir = File(dir, libPath)
                             dir.mkdirs()
                             File(dir, libPath).mkdirs()
@@ -124,21 +128,21 @@ object HostManager {
                             File(dir, optimized).mkdirs()
                             libDir.mkdirs()
                             val privateFile = File(dir, apkPath)
-                            if (!privateFile.exists() || BuildConfig.DEBUG) {
+                            if (!privateFile.exists()) {
                                 HostUtils.saveToFile(apkFile, privateFile)
                             }
                             try {
                                 ZipFile(apkFile, ZipFile.OPEN_READ).use {
-                                    extractLibFile(it, libDir)
+                                    extractLibFile(it, libDir, arch)
                                 }
                             } catch (e: Exception) {
                             }
 
-                            ApkInfo(this@HostManager, id, this, frameworkClassLoader).apply {
-                                attach(HostManager.application)
+                            ApkControl(this@HostManager, id, this, frameworkClassLoader).apply {
                                 val weak = WeakReference(this)
                                 idMap[id] = weak
                                 pkgMap[packageName] = weak
+                                attach(HostManager.application)
                             }
                         }
                         id
@@ -154,9 +158,8 @@ object HostManager {
     }
 
     @Throws(IOException::class)
-    private fun extractLibFile(zip: ZipFile, tarDir: File): Boolean {
-        val defaultArch = "armeabi-v7a"
-//        val defaultArch = "x86"
+    private fun extractLibFile(zip: ZipFile, tarDir: File, arch: String?): Boolean {
+        val defaultArch = arch?.takeIf { arch.isNullOrEmpty() } ?: "armeabi-v7a"
         val archLibEntries: MutableMap<String, MutableList<ZipEntry>> = HashMap()
         val e = zip.entries()
         while (e

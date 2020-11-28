@@ -1,3 +1,4 @@
+include ':ucard'
 include ':libSoft'
 include ':libHost'
 include ':test'

@@ -1,9 +1,14 @@
 package com.lwp.lib.host
 
+import android.util.Log
 import java.io.*
 import java.lang.reflect.Field
 
-const val buffSize = 1024
+fun printLog(info: String) {
+    if (DEBUG) {
+        Log.e(TAG, info)
+    }
+}
 
 internal object HostUtils {
     @JvmStatic

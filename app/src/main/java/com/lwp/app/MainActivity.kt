@@ -4,8 +4,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.ContentFrameLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.lwp.lib.host.HostManager
@@ -21,19 +24,13 @@ open class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         btn.setOnClickListener {
-            GlobalScope.launch {
-                HostManager.launch(HostManager.install("/sdcard/test.apk"), this@MainActivity)
-
-            }
+            open("test.apk")
         }
         btn_2.setOnClickListener {
-            GlobalScope.launch {
-                HostManager.launch(HostManager.install("/sdcard/test2.apk"), this@MainActivity)
-            }
+            open("test2.apk")
         }
         btn_3.setOnClickListener {
-//            HostManager.launch(File("/sdcard/test3.apk"))
-//            startActivity(Intent(this,MainActivity::class.java))
+            open("test3.apk")
         }
         if (ContextCompat.checkSelfPermission(
                 this,
@@ -47,5 +44,13 @@ open class MainActivity : AppCompatActivity() {
             );
         }
 
+    }
+    fun open(path:String){
+        GlobalScope.launch {
+            HostManager.launch(
+                HostManager.install("/sdcard/$path", "x86"),
+                this@MainActivity
+            )
+        }
     }
 }

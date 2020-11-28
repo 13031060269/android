@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".modules.user.CouponActivity">
+
+    <include layout="@layout/base_title" />
+
+    <com.hfax.ucard.widget.TabStrip
+        android:id="@+id/tab_strip"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#FFF"
+        android:paddingBottom="9dp"
+        android:paddingTop="9dp"
+        app:ts_active_color="#FFF59B4E"
+        app:ts_color="#FFF59B4E"
+        app:ts_corners_radius="20dp"
+        app:ts_inactive_color="#FF666666"
+        app:ts_size="14sp"
+        app:ts_strip_height="4dp"
+        app:ts_strip_width="20dp"
+        app:ts_strip_anim="translation"
+        app:ts_titles="@array/coupon"
+        app:ts_weight="3dp" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_coupon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

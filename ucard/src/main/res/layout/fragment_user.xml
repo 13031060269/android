@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF"
+    android:scrollbars="none">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.hfax.ucard.widget.BoldTextView
+            android:id="@+id/tv_welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="44dp"
+            android:layout_marginRight="8dp"
+            android:text="Hello,"
+            android:textColor="#353138"
+            android:textSize="26sp" />
+
+        <com.hfax.ucard.widget.CusTextView
+            android:id="@+id/tv_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/tv_welcome"
+            android:layout_marginLeft="6dp"
+            android:layout_marginBottom="3dp"
+            android:layout_toRightOf="@+id/tv_welcome"
+            android:text="--"
+            android:textColor="#353138"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:id="@+id/money_about"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_welcome"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="41dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.hfax.ucard.widget.CusTextView
+                    android:id="@+id/tv_payment_total"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="--"
+                    android:textColor="#F5894E"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="待还本息(元)"
+                    android:textColor="#363349"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="38dp"
+                android:background="#D8D8D8" />
+
+            <LinearLayout
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <com.hfax.ucard.widget.CusTextView
+                    android:id="@+id/tv_payment_month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="--"
+                    android:textColor="#363349"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="本月应还(元)"
+                    android:textColor="#363349"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/iv_navigator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="44dp"
+            android:paddingRight="15dp">
+
+            <ImageView
+                android:id="@+id/iv_personal_center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/icon_user_head" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/user_mynext_ic_normal" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/line1"
+            android:layout_width="wrap_content"
+            android:layout_height="6dp"
+            android:layout_below="@+id/money_about"
+            android:layout_marginTop="24dp"
+            android:background="#f4f3f8" />
+
+        <LinearLayout
+            android:id="@+id/ll_notice"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_below="@+id/line1"
+            android:background="#FFF7E9"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="22dp"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/icon_user_notice" />
+
+            <TextView
+                android:id="@+id/tv_status1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="完成实名认证，立即申请借款"
+                android:textColor="#FF8F7872"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_status2"
+                android:layout_width="wrap_content"
+                android:layout_height="17dp"
+                android:text="您有订单已逾期，点击查看详情"
+                android:textColor="#FFF67958"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="20dp"
+                android:src="@drawable/user_noti_go" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_notice"
+            android:layout_marginTop="38dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="41dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/go_borrow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <com.hfax.ucard.widget.PressImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:src="@drawable/user_myborrow_ic"
+                        app:press_bg="@drawable/user_myborrow_ic_press" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="我的借款"
+                        android:textColor="#363349"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/go_coupon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <com.hfax.ucard.widget.PressImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:src="@drawable/user_sale_ic"
+                        app:press_bg="@drawable/user_sale_ic_press" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="优惠券"
+                        android:textColor="#363349"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/go_msg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <com.hfax.ucard.widget.PressImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:src="@drawable/user_msg_ic"
+                        app:press_bg="@drawable/user_msg_ic_press" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="我的消息"
+                        android:textColor="#363349"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ll_service"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/selecter_user_item"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="28dp"
+                android:paddingRight="19dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="15dp"
+                    android:src="@drawable/icon_user_service" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="在线客服"
+                    android:textColor="#363349"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="14dp"
+                    android:src="@drawable/icon_navigation_gray_normal" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#EFEFEF" />
+
+            <LinearLayout
+                android:id="@+id/ll_about"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/selecter_user_item"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="28dp"
+                android:paddingRight="19dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="15dp"
+                    android:src="@drawable/icon_about" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="关于我们"
+                    android:textColor="#363349"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="14dp"
+                    android:src="@drawable/icon_navigation_gray_normal" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#EFEFEF" />
+
+            <LinearLayout
+                android:id="@+id/ll_feedback"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/selecter_user_item"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="28dp"
+                android:paddingRight="19dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="15dp"
+                    android:src="@drawable/icon_user_faq" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="帮助中心"
+                    android:textColor="#363349"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="14dp"
+                    android:src="@drawable/icon_navigation_gray_normal" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#EFEFEF" />
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>

@@ -22,9 +22,9 @@ internal object ClassGenerator {
 
     fun <S, D : S?> createActivityDex(
         superClassName: String,
-        id: ApkInfo
+        id: String, packageName: String, dexPath: String
     ): String {
-        val activityPath = File(id.activityPath(superClassName))
+        val activityPath = File(dexPath)
         val dexMaker = DexMaker()
         val generatedType: TypeId<D> = TypeId.get(
             'L'.toString() + pluginActivity.replace(
@@ -35,7 +35,7 @@ internal object ClassGenerator {
         val superType: TypeId<S> =
             TypeId.get('L'.toString() + superClassName.replace('.', '/') + ';')
         dexMaker.declare(generatedType, "", Modifier.PUBLIC or Modifier.FINAL, superType)
-        declareFields(dexMaker, generatedType, id.id, id.packageName)
+        declareFields(dexMaker, generatedType, id, packageName)
         declare_constructor(dexMaker, generatedType, superType)
         declareMethod_onCreate(dexMaker, generatedType, superType)
         declareMethod_getAssets(dexMaker, generatedType, superType)
@@ -53,8 +53,8 @@ internal object ClassGenerator {
         declareLifeCyleMethod(dexMaker, generatedType, superType, "onStop")
         declareLifeCyleMethod(dexMaker, generatedType, superType, "onDestroy")
         declareMethod_attachBaseContext(dexMaker, generatedType, superType)
-//        declareMethod_getComponentName(dexMaker, generatedType, superClassName)
-//        declareMethod_getPackageName(dexMaker, generatedType, id.packageName)
+        declareMethod_getComponentName(dexMaker, generatedType, superClassName)
+        declareMethod_getPackageName(dexMaker, generatedType, packageName)
         declareMethod_getIntent(dexMaker, generatedType, superType)
         declareMethod_setTheme(dexMaker, generatedType, superType)
         HostUtils.saveToFile(dexMaker.generate(), activityPath)
@@ -662,11 +662,11 @@ internal class ActivityOverrider {
             fromAct: Activity,
             base: Context
         ): Array<Any?>? {
-            return findApkInfo(apkId)?.attachBaseContext(fromAct, base)
+            return findApkInfo(apkId)?.attachBaseContext(fromAct)
         }
 
         @JvmStatic
-        private fun changeActivityInfo(id: ApkInfo?, activity: Context) {
+        private fun changeActivityInfo(id: ApkControl?, activity: Context) {
             val actName = activity.javaClass.superclass!!.name
             if (activity.javaClass.name != pluginActivity) {
                 return

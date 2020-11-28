@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/rl_title"
+        layout="@layout/base_title" />
+
+    <include
+        android:id="@+id/ic_tip"
+        layout="@layout/layout_info_head"
+        android:layout_width="match_parent"
+        android:layout_height="84dp"
+        android:layout_below="@+id/rl_title" />
+
+    <com.hfax.ucard.widget.HfaxScrollView
+        android:id="@+id/hsl_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ic_tip"
+        android:layout_marginTop="-30dp"
+        android:paddingTop="30dp"
+        android:visibility="visible">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/ll_subTitle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/page_bg"
+                android:paddingBottom="9dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="24dp"
+                    android:text="请扫描面部"
+                    android:textColor="#3A3C48"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_top_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ll_subTitle"
+                android:background="#F1F1FA"
+                android:paddingLeft="20dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="9dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="温馨提示："
+                    android:textColor="#9C9CCE"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_info_tip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:lineSpacingExtra="2dp"
+                    android:paddingRight="23dp"
+                    android:text="@string/identity_authorize_tip"
+                    android:textColor="#9C9CCE"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv_scan_id"
+                android:layout_width="match_parent"
+                android:layout_height="214dp"
+                android:layout_below="@id/ll_top_2"
+                android:layout_marginLeft="42dp"
+                android:layout_marginRight="42dp"
+                android:layout_marginTop="58dp"
+                android:src="@drawable/icon_faceid_pic"
+                android:visibility="visible" />
+        </RelativeLayout>
+    </com.hfax.ucard.widget.HfaxScrollView>
+    <TextView
+        android:layout_above="@+id/tv_next"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:text="点击下方按钮，则代表您同意惠域u卡收集您的人脸识别信息"
+        android:textColor="#FFB89373"
+        android:gravity="center"
+        android:background="#FFEFE8"
+        android:textSize="11sp"
+        />
+    <TextView
+        android:id="@+id/tv_next"
+        style="@style/ButtonCornerStyle"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:text="马上刷脸"
+        android:textColor="@color/white"
+        android:visibility="visible" />
+
+    <include
+        layout="@layout/layout_complete"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ic_tip" />
+</RelativeLayout>

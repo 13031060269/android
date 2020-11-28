@@ -12,13 +12,29 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.meituan.android.walle:plugin:1.1.6"
+        classpath 'com.sensorsdata.analytics.android:android-gradle-plugin2:3.1.0'
     }
 }
 
 allprojects {
     repositories {
+        flatDir {
+            dirs 'libs'
+        }
+        maven {
+            url "http://mvn.gt.igexin.com/nexus/content/repositories/releases/"
+        }
+        maven { url "http://mini.server.com:18081/nexus/content/repositories/common-android/" }
         google()
         jcenter() { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+        maven {
+            url 'https://dl.bintray.com/zouyuhan/maven'
+        }
     }
 }
 //subprojects {

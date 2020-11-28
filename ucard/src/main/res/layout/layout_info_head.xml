@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="81dp"
+    android:background="@drawable/icon_selectpoint1"
+    android:orientation="vertical">
+
+    <com.hfax.ucard.widget.TriangleView
+        android:id="@+id/tv_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="1dp"
+        android:layout_marginRight="16dp"
+        android:padding="6dp"
+        android:text="完善信息后钱即刻到账"
+        android:textColor="#666666"
+        android:textSize="9sp" />
+
+
+    <com.hfax.ucard.widget.RectangleView
+        android:id="@+id/rlv_bg"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="20dp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginRight="15dp">
+
+            <ImageView
+                android:id="@+id/iv_identity"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/icon_steps1_pressed" />
+
+            <TextView
+                android:id="@+id/tv_identity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:text="身份确认"
+                android:textColor="@color/person_info_selected_color"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp">
+
+            <ImageView
+                android:id="@+id/iv_info"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/icon_steps2_normal" />
+
+            <TextView
+                android:id="@+id/tv_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:text="个人信息"
+                android:textColor="@color/person_info_select_color"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp">
+
+            <View
+                android:id="@+id/view_dot"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@drawable/icon_dot_line"
+                android:visibility="invisible" />
+        </FrameLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="40dp">
+
+            <ImageView
+                android:id="@+id/iv_loan"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/icon_steps3_normal" />
+
+            <TextView
+                android:id="@+id/tv_loan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:text="借款确认"
+                android:textColor="@color/person_info_select_color"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

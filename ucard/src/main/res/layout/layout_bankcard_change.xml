@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="21dp"
+            android:visibility="gone"
+            android:layout_marginTop="28dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="代还信用卡"
+                android:textColor="#FF3A3C48"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="所申请借款将用于该信用卡还款"
+                android:textColor="#FFB1B1B6"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/shape_bg_need_money_bank"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.hfax.ucard.widget.BankCardImageView
+                android:id="@+id/iv_logo_credit"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="16dp" />
+
+            <TextView
+                android:id="@+id/tv_bank_name_credit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="14dp"
+                android:text="浦发银行"
+                android:textColor="#FFFFFFFF"
+                android:textSize="15sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="13dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="16dp"
+                android:background="#FFD8D8D8" />
+
+            <TextView
+                android:id="@+id/tv_bank_num_credit"
+                android:layout_width="53dp"
+                android:layout_height="17dp"
+                android:layout_weight="1"
+                android:text="尾号0809"
+                android:textColor="#FFFFFFFF"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_bank_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
+                android:background="@drawable/shape_change_bankcard_1"
+                android:button="@null"
+                android:drawablePadding="4dp"
+                android:drawableRight="@drawable/selector_bank_list"
+                android:paddingBottom="8dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="8dp"
+                android:text="切换银行卡"
+                android:textColor="#FFFFFFFF"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <ListView
+                android:id="@+id/lv_borrow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="#0000"
+                android:dividerHeight="0dp"
+                android:listSelector="#0000"
+                android:visibility="gone" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="21dp"
+            android:layout_marginTop="28dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="收/还款银行卡"
+                android:textColor="#FF3A3C48"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:text="该银行卡将用于收款及偿还借款"
+                android:textColor="#FFB1B1B6"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bank_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_below="@+id/ll_small_title"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/shape_bg_payment_details_bank"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.hfax.ucard.widget.BankCardImageView
+                    android:id="@+id/iv_logo_debit"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="14dp" />
+
+                <TextView
+                    android:id="@+id/tv_bank_name_debit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="招商银行"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="15sp" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="13dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="16dp"
+                    android:background="#FFD8D8D8" />
+
+                <TextView
+                    android:id="@+id/tv_bank_num_debit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="尾号1102"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="12sp" />
+
+                <CheckBox
+                    android:id="@+id/cb_bank_list_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="12dp"
+                    android:background="@drawable/shape_change_bankcard_2"
+                    android:button="@null"
+                    android:drawablePadding="4dp"
+                    android:drawableRight="@drawable/selector_bank_list"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="8dp"
+                    android:text="切换银行卡"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_change_bank"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="11dp"
+                android:layout_marginTop="-10dp"
+                android:drawableLeft="@drawable/select_change_card"
+                android:drawablePadding="6dp"
+                android:padding="10dp"
+                android:text="变更银行卡"
+                android:textColor="#FF978D6E"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+
+            <ListView
+                android:id="@+id/lv_repay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="#0000"
+                android:dividerHeight="0dp"
+                android:listSelector="#0000"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/add_bank"
+            layout="@layout/card_list_foot_add" />
+    </LinearLayout>
+</RelativeLayout>

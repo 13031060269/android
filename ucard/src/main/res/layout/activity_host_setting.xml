@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/base_title" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingBottom="20dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="18dp"
+                android:text="时间设置:"
+                android:textColor="#333333"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="自动锁屏时间(秒)：" />
+
+                <com.hfax.ucard.widget.ClearEditText
+                    android:id="@+id/et_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:hint="请输入时间"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="10dp"
+                    android:text="300"
+                    android:textColorHint="#d8d8d8"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="后台锁屏时间(秒)：" />
+
+                <com.hfax.ucard.widget.ClearEditText
+                    android:id="@+id/et_bg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:hint="请输入时间"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="10dp"
+                    android:text="60"
+                    android:textColorHint="#d8d8d8"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="去好评弹窗系数(秒)：" />
+
+                <com.hfax.ucard.widget.ClearEditText
+                    android:id="@+id/et_interval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:inputType="number"
+                    android:maxLength="13"
+                    android:maxLines="1"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="10dp"
+                    android:textColorHint="#d8d8d8"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:overScrollMode="always"
+                    android:scrollbars="none"></android.support.v7.widget.RecyclerView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/hfax_yanzheng"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/shape_homepage_recommand_wealth_textview_bg"
+                        android:gravity="center"
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp"
+                        android:text="内部验证"
+                        android:textColor="#333333"
+                        android:textSize="13sp" />
+
+                    <CheckBox
+                        android:id="@+id/hfax_debubg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="20dp"
+                        android:text="开启抓包模式" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/env_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#9c9a9a"
+                android:paddingBottom="15dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="15dp"
+                android:text="当前环境:"
+                android:textColor="@android:color/white"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="#9c9a9a"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="10dp"
+                    android:text="自定义环境:"
+                    android:textColor="@android:color/white"
+                    android:textSize="15sp" />
+
+                <com.hfax.ucard.widget.ClearEditText
+                    android:id="@+id/host"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00000000"
+                    android:hint="请输入域名"
+                    android:inputType="text"
+                    android:paddingBottom="15dp"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="15dp"
+                    android:singleLine="true"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@android:color/white"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="#9c9a9a"
+                android:paddingBottom="3dp"
+                android:paddingLeft="5dp"
+                android:paddingTop="3dp"
+                android:text="输入记录"
+                android:textColor="#dddddd"
+                android:textSize="12sp" />
+
+            <android.support.v7.widget.AppCompatSpinner
+                android:id="@+id/spinner_url_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingBottom="20dp"
+                android:paddingTop="20dp"></android.support.v7.widget.AppCompatSpinner>
+
+            <TextView
+                android:id="@+id/sure"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/shape_button_normal_gradient"
+                android:gravity="center"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:text="确定修改Url"
+                android:textColor="#ffffff"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_spinner_clear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/shape_button_normal_gradient"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="10dp"
+                android:text="清除所有输入的url历史记录"
+                android:textColor="@android:color/white"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

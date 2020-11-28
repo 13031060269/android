@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/include_modify_title"
+        layout="@layout/base_title" />
+
+    <include
+        android:id="@+id/ic_tip"
+        layout="@layout/layout_info_head"
+        android:layout_width="match_parent"
+        android:layout_height="84dp"
+        android:layout_below="@+id/include_modify_title"
+        android:visibility="visible" />
+
+    <com.hfax.ucard.widget.HfaxScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ic_tip">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:paddingBottom="80dp">
+
+            <LinearLayout
+                android:id="@+id/ll_tip_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/page_bg"
+                android:paddingBottom="9dp">
+
+                <TextView
+                    android:id="@+id/tv_subTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="24dp"
+                    android:text="请上传身份证"
+                    android:textColor="#3A3C48"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tv_sub_tip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="24dp"
+                    android:text="请将本人二代身份证置于扫描框内"
+                    android:textColor="#B1B1B6"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ll_top_2"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_below="@id/ll_tip_1"
+                android:background="#F1F1FA"
+                android:paddingLeft="20dp"
+                android:paddingTop="9dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="温馨提示："
+                    android:textColor="#9C9CCE"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_info_tip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/identity_authorize_tip_1"
+                    android:textColor="#9C9CCE"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+
+            <FrameLayout
+                android:id="@+id/fl_front"
+                android:layout_width="match_parent"
+                android:layout_height="146dp"
+                android:layout_below="@+id/ll_top_2"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="60dp"
+                android:layout_marginTop="45dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/iv_front"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/selector_ida" />
+
+                <ImageView
+                    android:id="@+id/iv_front_replay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="90dp"
+                    android:gravity="center"
+                    android:paddingBottom="6dp"
+                    android:paddingLeft="26dp"
+                    android:paddingRight="26dp"
+                    android:paddingTop="6dp"
+                    android:src="@drawable/selector_replay"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/fl_back"
+                android:layout_width="match_parent"
+                android:layout_height="146dp"
+                android:layout_below="@+id/fl_front"
+                android:layout_marginBottom="40dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="60dp"
+                android:layout_marginTop="21dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/iv_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/selector_idb" />
+
+                <ImageView
+                    android:id="@+id/iv_back_replay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="90dp"
+                    android:gravity="center"
+                    android:paddingBottom="6dp"
+                    android:paddingLeft="26dp"
+                    android:paddingRight="26dp"
+                    android:paddingTop="6dp"
+                    android:src="@drawable/selector_replay"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <View
+                android:id="@+id/view_line"
+                style="@style/HorizontalLineStyleGray_1dp"
+                android:layout_below="@+id/fl_back" />
+
+            <LinearLayout
+                android:id="@+id/ll_sure"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/view_line"
+                android:background="@color/page_bg"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="27dp"
+                    android:paddingLeft="24dp"
+                    android:text="请确认以下信息"
+                    android:textColor="#3A3C48"
+                    android:textSize="15sp" />
+
+                <LinearLayout
+                    android:id="@+id/ll_choose_phone1"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="9dp"
+                    android:background="@color/white"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="23dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:text="姓名"
+                        android:textColor="@color/operator_text_color"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/et_name"
+                        style="@style/EditTextDefaultStyle"
+                        android:layout_width="0dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:text=""
+                        android:textColor="#3A3C48"
+                        android:textSize="15sp"
+                        app:isShowDel="false" />
+
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:src="@drawable/icon_write_name" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white">
+
+                    <View
+                        style="@style/HorizontalLineStyleGray_1dp"
+                        android:layout_marginLeft="24dp" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_choose_phone2"
+                    android:layout_width="match_parent"
+                    android:layout_height="55dp"
+                    android:background="@color/white"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="24dp"
+                    android:paddingRight="23dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:text="身份证号"
+                        android:textColor="@color/operator_text_color"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tv_id"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:textColor="@color/authorize_tip_color"
+                        android:textColorHint="@color/forget_login_pwd_color"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View style="@style/HorizontalLineStyleGray_1dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_below="@+id/ll_sure"
+                    android:background="@color/page_bg"></View>
+            </LinearLayout>
+        </RelativeLayout>
+    </com.hfax.ucard.widget.HfaxScrollView>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/page_bg"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp">
+
+            <TextView
+                android:id="@+id/tv_tips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="信息仅用于身份认证，惠域U卡保障您的信息安全"
+                android:textColor="#B1B1B6"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:enabled="false"
+            android:id="@+id/tv_next"
+            style="@style/ButtonCornerStyle"
+            android:layout_height="50dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:text="下一步"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</RelativeLayout>

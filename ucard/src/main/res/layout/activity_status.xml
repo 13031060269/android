@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_return"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_gravity="start"
+        android:paddingBottom="16dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="10dp"
+        android:paddingTop="16dp"
+        android:src="@drawable/selector_back" />
+
+    <ImageView
+        android:layout_width="246dp"
+        android:layout_height="260dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/icon_successbig" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:text="提交成功"
+        android:textColor="#FF363349"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:lineSpacingExtra="2dp"
+        android:text="您的借款申请已提交成功,\n正在飞速审核中"
+        android:textColor="#FF90929D"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_next"
+        style="@style/ButtonCornerStyle"
+        android:layout_height="42dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="45dp"
+        android:background="@drawable/selector_btn_important"
+        android:clickable="true"
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp"
+        android:text="查看申请进度" />
+
+    <TextView
+        android:id="@+id/tv_back_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="返回首页"
+        android:textColor="#FF353656"
+        android:textSize="14sp"
+        android:visibility="gone" />
+</LinearLayout>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_title_return"
+        android:layout_width="48dp"
+        android:layout_height="51dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="17dp"
+        android:layout_marginTop="12dp"
+        android:clickable="true"
+        android:paddingLeft="15dp"
+        android:paddingTop="14dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="14dp"
+        android:src="@drawable/selector_backone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="11dp"
+        android:text="忘记密码?"
+        android:textColor="#FF363349"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/ll_forget_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginRight="32dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal">
+
+
+        <EditText
+            android:id="@+id/et_phone"
+            style="@style/EditTextDefaultStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:hint="请输入手机号码"
+            android:inputType="phone"
+            android:maxLength="11"
+            android:maxLines="1" />
+
+        <com.hfax.ucard.widget.codes.CodeView
+            android:id="@+id/cv_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp" />
+
+
+    <com.hfax.ucard.widget.DelOrPWDEditText
+        android:id="@+id/et_code"
+        style="@style/EditTextDefaultStyle"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="32dp"
+        android:hint="请输入短信验证码"
+        android:inputType="number"
+        android:maxLength="@integer/auth_code_size"
+        app:del="true" />
+
+
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp" />
+
+
+    <com.hfax.ucard.widget.DelOrPWDEditText
+        android:id="@+id/et_pwd"
+        style="@style/EditTextDefaultStyle"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="32dp"
+        android:hint="请设置登录密码"
+        android:inputType="textPassword"
+        android:maxLength="16"
+        app:del="true"
+        app:pwd="true" />
+
+    <View
+        style="@style/HorizontalLineStyleGray_1dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp" />
+
+    <TextView
+        android:id="@+id/tv_next"
+        style="@style/ButtonCornerStyle"
+        android:layout_marginTop="86dp"
+        android:background="@drawable/selector_btn_important"
+        android:enabled="false"
+        android:text="确定" />
+</LinearLayout>

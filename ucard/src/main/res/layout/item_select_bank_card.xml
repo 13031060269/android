@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp">
+
+        <com.hfax.ucard.widget.BankCardImageView
+            android:id="@+id/iv_logo"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            app:widthRound_color="@color/bankcard_list_bg"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:id="@+id/tv_bank_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/iv_logo"
+            android:text="中国工商银行"
+            android:textColor="#FF3D3D3D"
+            android:textSize="14sp" />
+
+        <View
+            style="@style/HorizontalLineStyleGray_1dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="20dp" />
+    </RelativeLayout>
+</RelativeLayout>

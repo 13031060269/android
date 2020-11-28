@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#FFF"
+        android:gravity="center"
+        android:maxLength="15"
+        android:maxLines="1"
+        android:text="惠域U卡"
+        android:textColor="#39353C"
+        android:textSize="17sp" />
+
+    <ScrollView
+        android:id="@+id/sv_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fadingEdge="none"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/rl_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:visibility="gone">
+
+                <com.hfax.ucard.widget.banner.BannerViewPager
+                    android:id="@+id/hvp_viewpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <com.hfax.lib.widget.indIcator.CirclePageIndicator
+                    android:id="@+id/cpi_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="5dp"
+                    app:fillColor="#FFFFFF"
+                    app:pageColor="#b6b6b6"
+                    app:radius="3dp"
+                    app:strokeColor="#b6b6b6"
+                    app:strokeWidth="-1dp" />
+
+            </RelativeLayout>
+
+            <com.hfax.ucard.widget.AutoImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="26dp"
+                android:layout_marginRight="8dp"
+                android:src="@drawable/icon_home_use"
+                app:heightWeight="148"
+                app:widthWeight="718" />
+
+            <include
+                android:id="@+id/ll_notice_root"
+                layout="@layout/notifi_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="44dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="22dp"
+                    android:src="@drawable/home_how_money" />
+
+                <com.hfax.ucard.widget.BoldTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:text="借多少"
+                    android:textColor="#353138"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"></EditText>
+
+                <com.hfax.ucard.widget.CusEditView
+                    android:id="@+id/tv_borrowing_balance"
+                    android:layout_width="0dp"
+                    android:layout_height="35dp"
+                    android:layout_marginRight="19dp"
+                    android:layout_weight="1"
+                    android:background="#0000"
+                    android:gravity="right|center_vertical"
+                    android:hint="最高借20000元"
+                    android:imeOptions="actionDone"
+                    android:inputType="number"
+                    android:maxLength="5"
+                    android:textColor="#59535E"
+                    android:textColorHint="#918D9B"
+                    android:textCursorDrawable="@null"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/line_et"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="#E2E2E4" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="22dp"
+                    android:src="@drawable/home_how_date" />
+
+                <com.hfax.ucard.widget.BoldTextView
+                    android:id="@+id/tv_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toRightOf="@+id/iv_left"
+                    android:text="借多久"
+                    android:textColor="#353138"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_content"
+                    android:layout_alignLeft="@+id/tv_content"
+                    android:text="日利率低至0.02%"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/ll_month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.hfax.ucard.widget.CusTextView
+                        android:id="@+id/tv_month"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="20dp"
+                        android:drawableRight="@drawable/selector_spinner_bg"
+                        android:drawablePadding="10dp"
+                        android:text="个月"
+                        android:textColor="#353138"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="20dp"
+                android:background="#E2E2E4" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="22dp"
+                    android:src="@drawable/home_use" />
+
+                <com.hfax.ucard.widget.BoldTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_weight="1"
+                    android:text="借款用途"
+                    android:textColor="#353138"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tv_content"
+                    android:layout_alignLeft="@+id/tv_content"
+                    android:text="日利率低至0.02%"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_use"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:drawableRight="@drawable/selector_spinner_bg"
+                    android:drawablePadding="10dp"
+                    android:text="教育"
+                    android:textColor="#353138"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="#E2E2E4" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="#FFFFF9F5"
+                android:gravity="center"
+                android:padding="12dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/ll_root_month"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.hfax.ucard.widget.BoldTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="每月还款 "
+                        android:textColor="#FF111111"
+                        android:textSize="15sp" />
+
+                    <com.hfax.ucard.widget.CusTextView
+                        android:id="@+id/tv_query_trial_repayment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textColor="#FFF59B4E"
+                        android:textSize="20sp" />
+
+                    <com.hfax.ucard.widget.BoldTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" 元"
+                        android:textColor="#FF111111"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="每月按时还款，额度月月提升！"
+                    android:textColor="#FFF5894E"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/bt_color_goto_borrow_money"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginLeft="72dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="72dp"
+                android:layout_marginBottom="28dp"
+                android:background="@drawable/selector_goto_borrow"
+                android:gravity="center"
+                android:text="去借款"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <View
+                android:id="@+id/view_line"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#f4f3f8" />
+
+            <com.hfax.ucard.widget.BoldTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="11dp"
+                android:text="推荐服务"
+                android:textColor="#353138"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_activity"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1"
+                    android:background="#ffff"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/home_activity_pic" />
+
+                <ImageView
+                    android:id="@+id/iv_strategy"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#ffff"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/home_guide_pic" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="8dp"
+                    android:src="@drawable/home_question_ic" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="4dp"
+                        android:text="常见问题"
+                        android:textColor="#3D72F4"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text="轻松解决您的疑惑"
+                        android:textColor="#C5C5D5"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/home_next2_ic_normal" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="11dp"
+                android:layout_marginRight="20dp"
+                android:background="#E2E2E4" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="33dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="安全合规"
+                    android:textColor="#BDBDC6"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:text="快速审批"
+                    android:textColor="#BDBDC6"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="实时放款"
+                    android:textColor="#BDBDC6"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

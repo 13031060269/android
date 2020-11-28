@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_bg"
+    android:orientation="vertical">
+
+    <include layout="@layout/base_title" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="11dp"
+        android:background="#FFF1F1FA"
+        android:paddingLeft="25dp"
+        android:paddingTop="8dp"
+        android:paddingRight="25dp"
+        android:paddingBottom="8dp"
+        android:text="我们将在借款授信等业务场景中获取以下权限，您可以通过系统设置管理对应权限"
+        android:textColor="#FF9C9CCE"
+        android:textSize="11sp" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycle_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
