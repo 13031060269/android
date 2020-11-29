@@ -8,6 +8,7 @@ import android.content.res.AssetManager
 import android.content.res.PluginResource
 import android.content.res.Resources
 import android.os.Bundle
+import android.view.WindowManager
 import com.lwp.lib.host.HostManager.startActivityForResult
 import com.lwp.lib.host.classloader.FrameworkClassLoader
 import com.lwp.lib.host.classloader.PluginClassLoader
@@ -33,7 +34,7 @@ internal class ApkControl(
     val packageName: String = packageInfo.packageName
     val dir = dir(id)
     internal val mApplicationInfo: ApplicationInfo = packageInfo.applicationInfo
-
+    var windowAnimations = 0
     val lifeCycle: ActivityLifeCycle = SimpleLifeCycleCallBack()
     private var launchActivityInfo: ResolveInfo? = null
     private val resolvers = LinkedList<ResolveInfo>()
@@ -107,7 +108,11 @@ internal class ApkControl(
         }
     }
 
-    fun push(activityInfo: ActivityInfo) {
+    fun push(fromAct: Activity, activityInfo: ActivityInfo) {
+        val layoutParams = fromAct.window.decorView.layoutParams
+        if (layoutParams is WindowManager.LayoutParams) {
+            windowAnimations = layoutParams.windowAnimations
+        }
         apkId = id
         stack.push(activityInfo)
     }
@@ -186,7 +191,7 @@ internal class ApkControl(
                 activityInfo = it.activityInfo
             }
         }
-        val actWrapper = ActivityWrapper(ctxWrapper, activityInfo!!)
+        val actWrapper = ctxWrapper
         return arrayOf(actWrapper, mAssetManager)
     }
 
@@ -283,7 +288,9 @@ internal class ApkControl(
         override fun onRestart(pluginAct: Activity) {
             apkId = id
             var activityInfo: ActivityInfo = stack.peek()
-            while (stack.isNotEmpty() && activityInfo.name != pluginAct::class.java.superclass.name) {
+            while (stack.isNotEmpty()
+                && activityInfo.name != pluginAct::class.java.superclass?.name
+            ) {
                 stack.pop()
                 activityInfo = stack.peek()
             }

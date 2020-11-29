@@ -1,13 +1,8 @@
 package com.lwp.lib.host.classloader
 
-import android.util.ArrayMap
-import android.view.View
-import com.lwp.lib.host.*
 import com.lwp.lib.host.HostUtils
 import com.lwp.lib.host.apkId
 import com.lwp.lib.host.findApkInfo
-import com.lwp.lib.host.view
-import com.lwp.lib.host.viewMap
 import dalvik.system.PathClassLoader
 
 internal class FrameworkClassLoader(private val baseClassLoader: ClassLoader) :
@@ -37,9 +32,6 @@ internal class FrameworkClassLoader(private val baseClassLoader: ClassLoader) :
         }
         if (c == null) {
             throw ClassNotFoundException(className)
-        }
-        if (view.isAssignableFrom(c)) {
-            viewMap[className] = c.asSubclass(view)
         }
         return c
     }

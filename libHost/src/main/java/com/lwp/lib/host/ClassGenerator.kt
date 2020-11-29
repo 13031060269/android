@@ -10,9 +10,9 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.ContextThemeWrapper
 import com.android.dx.*
 import java.io.File
-import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
 internal object ClassGenerator {
@@ -667,30 +667,28 @@ internal class ActivityOverrider {
 
         @JvmStatic
         private fun changeActivityInfo(id: ApkControl?, activity: Context) {
-            val actName = activity.javaClass.superclass!!.name
             if (activity.javaClass.name != pluginActivity) {
                 return
             }
-            var fieldActivityInfo: Field?
             try {
-                fieldActivityInfo = Activity::class.java.getDeclaredField("mActivityInfo")
+                val actName = activity.javaClass.superclass!!.name
+                val fieldActivityInfo = Activity::class.java.getDeclaredField("mActivityInfo")
                 fieldActivityInfo.isAccessible = true
+                fieldActivityInfo[activity] = id?.findActivityByClassName(actName)
             } catch (e: Exception) {
                 return
-            }
-            val actInfo = id?.findActivityByClassName(actName)
-            try {
-                fieldActivityInfo[activity] = actInfo
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
 
         @JvmStatic
         fun getPlugActivityTheme(fromAct: Activity, id: String): Int {
             val plugin = findApkInfo(id)
+            if (plugin == null) {
+                fromAct.finish()
+                return 0
+            }
             val actName = fromAct.javaClass.superclass!!.name
-            val actInfo = plugin?.findActivityByClassName(actName)
+            val actInfo = plugin.findActivityByClassName(actName)
             val rs = actInfo!!.themeResource
             changeActivityInfo(plugin, fromAct)
             return rs
@@ -698,53 +696,47 @@ internal class ActivityOverrider {
 
         @JvmStatic
         fun overrideOnBackPressed(fromAct: Activity, id: String): Boolean {
-            val plInfo = findApkInfo(id)
-            val actName = fromAct.javaClass.superclass!!.name
-            val actInfo = plInfo?.findActivityByClassName(actName)
+//            val plInfo = findApkInfo(id)
+//            val actName = fromAct.javaClass.superclass!!.name
+//            val actInfo = plInfo?.findActivityByClassName(actName)
             return true
         }
 
         @JvmStatic
         fun onCreate(id: String, fromAct: Activity) {
-            val id = findApkInfo(id)
+            val info = findApkInfo(id)
+            if (info == null) {
+                fromAct.finish()
+                return
+            }
+            HostWM(fromAct, info)
             try {
                 val applicationField = Activity::class.java
                     .getDeclaredField("mApplication")
                 applicationField.isAccessible = true
-                applicationField[fromAct] = id?.application
+                applicationField[fromAct] = info?.application
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-//            val actName = fromAct.javaClass.superclass!!.name
-//            val actInfo = id?.findActivityByClassName(actName)
-//            val resTheme = actInfo!!.themeResource
-//            if (resTheme != 0) {
-//                var hasNotSetTheme = true
-//                try {
-//                    val mTheme = ContextThemeWrapper::class.java
-//                        .getDeclaredField("mTheme")
-//                    mTheme.isAccessible = true
-//                    hasNotSetTheme = mTheme[fromAct] == null
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                }
-//                if (hasNotSetTheme) {
-//                    changeActivityInfo(id, fromAct)
-//                    fromAct.setTheme(resTheme)
-//                }
-//            }
-//            try {
-//                val window = fromAct.window
-//                val origInf: Any = HostUtils.getFieldValue(window, "mLayoutInflater", true)
-//                if (origInf !is HostLayoutInflater) {
-//                    HostUtils.setFieldValue(
-//                        window, "mLayoutInflater",
-//                        id.inflater, true
-//                    )
-//                }
-//            } catch (e: java.lang.Exception) {
-//            }
-            id?.lifeCycle?.onCreate(fromAct)
+            val actName = fromAct.javaClass.superclass!!.name
+            val actInfo = info?.findActivityByClassName(actName)
+            val resTheme = actInfo!!.themeResource
+            if (resTheme != 0) {
+                var hasNotSetTheme = true
+                try {
+                    val mTheme = ContextThemeWrapper::class.java
+                        .getDeclaredField("mTheme")
+                    mTheme.isAccessible = true
+                    hasNotSetTheme = mTheme[fromAct] == null
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                if (hasNotSetTheme) {
+                    changeActivityInfo(info, fromAct)
+                    fromAct.setTheme(resTheme)
+                }
+            }
+            info.lifeCycle.onCreate(fromAct)
         }
 
         @JvmStatic

@@ -24,10 +24,11 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    aaptOptions.additionalParameters("--stable-ids", "${file('generated_exported_all_resouces.txt').absolutePath}")
 }
 
 dependencies {

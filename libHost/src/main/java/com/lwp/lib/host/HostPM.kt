@@ -11,7 +11,7 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.UserHandle
 
-internal class HostPM(private val orig: PackageManager, private val control: ApkControl) :
+internal class HostPM(private val poxy: PackageManager, private val control: ApkControl) :
     PackageManager() {
     @Throws(NameNotFoundException::class)
     override fun getPackageInfo(packageName: String, flags: Int): PackageInfo {
@@ -21,7 +21,7 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     @Throws(NameNotFoundException::class)
     override fun getPackageInfo(versionedPackage: VersionedPackage, flags: Int): PackageInfo {
         return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            orig.getPackageInfo(versionedPackage, flags)
+            poxy.getPackageInfo(versionedPackage, flags)
         } else {
             PackageInfo()
         }
@@ -29,7 +29,7 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
 
     fun getPermissionControllerPackageName(): String? {
         return PackageManager::class.java.getMethod("getPermissionControllerPackageName")
-            .invoke(orig) as String?
+            .invoke(poxy) as String?
     }
 
 //    fun getPermissionControllerPackageName(): String {
@@ -37,17 +37,17 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
 //    }
 
     override fun currentToCanonicalPackageNames(names: Array<String>): Array<String> {
-        return orig.currentToCanonicalPackageNames(names)
+        return poxy.currentToCanonicalPackageNames(names)
     }
 
     override fun canonicalToCurrentPackageNames(names: Array<String>): Array<String> {
-        return orig.canonicalToCurrentPackageNames(names)
+        return poxy.canonicalToCurrentPackageNames(names)
     }
 
     override fun getLaunchIntentForPackage(packageName: String): Intent? {
 //         val plugin =
 //         ApkPlugin.getInstance().getPluginByPackageName(packageName);
-        return orig.getLaunchIntentForPackage(packageName)
+        return poxy.getLaunchIntentForPackage(packageName)
     }
 
     override fun getLeanbackLaunchIntentForPackage(packageName: String): Intent? {
@@ -71,21 +71,21 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
 
     @Throws(NameNotFoundException::class)
     override fun getPermissionInfo(name: String, flags: Int): PermissionInfo {
-        return orig.getPermissionInfo(name, flags)
+        return poxy.getPermissionInfo(name, flags)
     }
 
     @Throws(NameNotFoundException::class)
     override fun queryPermissionsByGroup(group: String, flags: Int): List<PermissionInfo> {
-        return orig.queryPermissionsByGroup(group, flags)
+        return poxy.queryPermissionsByGroup(group, flags)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getPermissionGroupInfo(name: String, flags: Int): PermissionGroupInfo {
-        return orig.getPermissionGroupInfo(name, flags)
+        return poxy.getPermissionGroupInfo(name, flags)
     }
 
     override fun getAllPermissionGroups(flags: Int): List<PermissionGroupInfo> {
-        return orig.getAllPermissionGroups(flags)
+        return poxy.getAllPermissionGroups(flags)
     }
 
     @Throws(NameNotFoundException::class)
@@ -95,30 +95,32 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
 
     @Throws(NameNotFoundException::class)
     override fun getActivityInfo(component: ComponentName, flags: Int): ActivityInfo {
-        return orig.getActivityInfo(component, flags)
+        return if (component.className == pluginActivity) {
+            return hostActivityInfo
+        } else poxy.getActivityInfo(component, flags)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getReceiverInfo(component: ComponentName, flags: Int): ActivityInfo {
-        return orig.getReceiverInfo(component, flags)
+        return poxy.getReceiverInfo(component, flags)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getServiceInfo(component: ComponentName, flags: Int): ServiceInfo {
-        return orig.getServiceInfo(component, flags)
+        return poxy.getServiceInfo(component, flags)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getProviderInfo(component: ComponentName, flags: Int): ProviderInfo {
-        return orig.getProviderInfo(component, flags)
+        return poxy.getProviderInfo(component, flags)
     }
 
     override fun getInstalledPackages(flags: Int): List<PackageInfo> {
-        return orig.getInstalledPackages(flags)
+        return poxy.getInstalledPackages(flags)
     }
 
     override fun checkPermission(permName: String, pkgName: String): Int {
-        return orig.checkPermission(permName, pkgName)
+        return poxy.checkPermission(permName, pkgName)
     }
 
     override fun isPermissionRevokedByPolicy(permissionName: String, packageName: String): Boolean {
@@ -126,35 +128,35 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     }
 
     override fun addPermission(info: PermissionInfo): Boolean {
-        return orig.addPermission(info)
+        return poxy.addPermission(info)
     }
 
     override fun addPermissionAsync(info: PermissionInfo): Boolean {
-        return orig.addPermission(info)
+        return poxy.addPermission(info)
     }
 
     override fun removePermission(name: String) {
-        orig.removePermission(name)
+        poxy.removePermission(name)
     }
 
     override fun checkSignatures(pkg1: String, pkg2: String): Int {
-        return orig.checkSignatures(pkg1, pkg2)
+        return poxy.checkSignatures(pkg1, pkg2)
     }
 
     override fun checkSignatures(uid1: Int, uid2: Int): Int {
-        return orig.checkSignatures(uid1, uid2)
+        return poxy.checkSignatures(uid1, uid2)
     }
 
     override fun getPackagesForUid(uid: Int): Array<String>? {
-        return orig.getPackagesForUid(uid)
+        return poxy.getPackagesForUid(uid)
     }
 
     override fun getNameForUid(uid: Int): String? {
-        return orig.getNameForUid(uid)
+        return poxy.getNameForUid(uid)
     }
 
     override fun getInstalledApplications(flags: Int): List<ApplicationInfo> {
-        return orig.getInstalledApplications(flags)
+        return poxy.getInstalledApplications(flags)
     }
 
     override fun isInstantApp(): Boolean {
@@ -176,25 +178,25 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     override fun clearInstantAppCookie() {}
     override fun updateInstantAppCookie(cookie: ByteArray?) {}
     override fun getSystemSharedLibraryNames(): Array<String>? {
-        return orig.systemSharedLibraryNames
+        return poxy.systemSharedLibraryNames
     }
 
     @SuppressLint("NewApi")
     override fun getSharedLibraries(flags: Int): List<SharedLibraryInfo> {
-        return orig.getSharedLibraries(flags)
+        return poxy.getSharedLibraries(flags)
     }
 
     @SuppressLint("NewApi")
     override fun getChangedPackages(sequenceNumber: Int): ChangedPackages? {
-        return orig.getChangedPackages(sequenceNumber)
+        return poxy.getChangedPackages(sequenceNumber)
     }
 
     override fun getSystemAvailableFeatures(): Array<FeatureInfo> {
-        return orig.systemAvailableFeatures
+        return poxy.systemAvailableFeatures
     }
 
     override fun hasSystemFeature(name: String): Boolean {
-        return orig.hasSystemFeature(name)
+        return poxy.hasSystemFeature(name)
     }
 
     override fun hasSystemFeature(featureName: String, version: Int): Boolean {
@@ -202,42 +204,42 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     }
 
     override fun resolveActivity(intent: Intent, flags: Int): ResolveInfo? {
-        return orig.resolveActivity(intent, flags)
+        return poxy.resolveActivity(intent, flags)
     }
 
     override fun queryIntentActivities(intent: Intent, flags: Int): List<ResolveInfo> {
-        return orig.queryIntentActivities(intent, flags)
+        return poxy.queryIntentActivities(intent, flags)
     }
 
     override fun queryIntentActivityOptions(
         caller: ComponentName?,
         specifics: Array<Intent>?, intent: Intent, flags: Int
     ): List<ResolveInfo> {
-        return orig
+        return poxy
             .queryIntentActivityOptions(caller, specifics, intent, flags)
     }
 
     override fun queryBroadcastReceivers(intent: Intent, flags: Int): List<ResolveInfo> {
-        return orig.queryBroadcastReceivers(intent, flags)
+        return poxy.queryBroadcastReceivers(intent, flags)
     }
 
     override fun resolveService(intent: Intent, flags: Int): ResolveInfo? {
-        return orig.resolveService(intent, flags)
+        return poxy.resolveService(intent, flags)
     }
 
     override fun queryIntentServices(intent: Intent, flags: Int): List<ResolveInfo> {
-        return orig.queryIntentServices(intent, flags)
+        return poxy.queryIntentServices(intent, flags)
     }
 
     override fun resolveContentProvider(name: String, flags: Int): ProviderInfo? {
-        return orig.resolveContentProvider(name, flags)
+        return poxy.resolveContentProvider(name, flags)
     }
 
     override fun queryContentProviders(
         processName: String,
         uid: Int, flags: Int
     ): List<ProviderInfo> {
-        return orig.queryContentProviders(processName, uid, flags)
+        return poxy.queryContentProviders(processName, uid, flags)
     }
 
     @Throws(NameNotFoundException::class)
@@ -245,31 +247,31 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
         className: ComponentName,
         flags: Int
     ): InstrumentationInfo {
-        return orig.getInstrumentationInfo(className, flags)
+        return poxy.getInstrumentationInfo(className, flags)
     }
 
     override fun queryInstrumentation(
         targetPackage: String,
         flags: Int
     ): List<InstrumentationInfo> {
-        return orig.queryInstrumentation(targetPackage, flags)
+        return poxy.queryInstrumentation(targetPackage, flags)
     }
 
     override fun getDrawable(
         packageName: String, resid: Int,
         appInfo: ApplicationInfo
     ): Drawable? {
-        return orig.getDrawable(packageName, resid, appInfo)
+        return poxy.getDrawable(packageName, resid, appInfo)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getActivityIcon(activityName: ComponentName): Drawable? {
-        return orig.getActivityIcon(activityName)
+        return poxy.getActivityIcon(activityName)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getActivityIcon(intent: Intent): Drawable {
-        return orig.getActivityIcon(intent)
+        return poxy.getActivityIcon(intent)
     }
 
     @Throws(NameNotFoundException::class)
@@ -283,16 +285,16 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     }
 
     override fun getDefaultActivityIcon(): Drawable {
-        return orig.defaultActivityIcon
+        return poxy.defaultActivityIcon
     }
 
     override fun getApplicationIcon(info: ApplicationInfo): Drawable {
-        return orig.getApplicationIcon(info)
+        return poxy.getApplicationIcon(info)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getApplicationIcon(packageName: String): Drawable? {
-        return orig.getApplicationIcon(packageName)
+        return poxy.getApplicationIcon(packageName)
     }
 
     override fun getApplicationBanner(info: ApplicationInfo): Drawable? {
@@ -360,17 +362,17 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
 
     @Throws(NameNotFoundException::class)
     override fun getResourcesForActivity(activityName: ComponentName): Resources? {
-        return orig.getResourcesForApplication(activityName.packageName)
+        return poxy.getResourcesForApplication(activityName.packageName)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getResourcesForApplication(app: ApplicationInfo): Resources? {
-        return orig.getResourcesForApplication(app)
+        return poxy.getResourcesForApplication(app)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getResourcesForApplication(appPackageName: String): Resources? {
-        return orig.getResourcesForApplication(appPackageName)
+        return poxy.getResourcesForApplication(appPackageName)
     }
 
     override fun getInstallerPackageName(packageName: String): String? {
@@ -410,7 +412,7 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     }
 
     override fun getComponentEnabledSetting(componentName: ComponentName): Int {
-        return orig.getComponentEnabledSetting(componentName)
+        return poxy.getComponentEnabledSetting(componentName)
     }
 
     override fun setApplicationEnabledSetting(
@@ -420,23 +422,23 @@ internal class HostPM(private val orig: PackageManager, private val control: Apk
     }
 
     override fun getApplicationEnabledSetting(packageName: String): Int {
-        return orig.getApplicationEnabledSetting(packageName)
+        return poxy.getApplicationEnabledSetting(packageName)
     }
 
     override fun isSafeMode(): Boolean {
-        return orig.isSafeMode
+        return poxy.isSafeMode
     }
 
     override fun setApplicationCategoryHint(packageName: String, categoryHint: Int) {}
 
     @SuppressLint("NewApi")
     override fun getPackageInstaller(): PackageInstaller {
-        return orig.packageInstaller
+        return poxy.packageInstaller
     }
 
     @SuppressLint("NewApi")
     override fun canRequestPackageInstalls(): Boolean {
-        return orig.canRequestPackageInstalls()
+        return poxy.canRequestPackageInstalls()
     }
 
     override fun getPackagesHoldingPermissions(

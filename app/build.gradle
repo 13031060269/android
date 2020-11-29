@@ -18,10 +18,11 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        resConfigs('zh-rCN')
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

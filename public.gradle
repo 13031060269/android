@@ -16,9 +16,9 @@ class PublicXmlPlugin implements Plugin<Project> {
                     String mergeResourcesOutPath = mergeResources.outputDir.get().getAsFile().absolutePath
                     String publicXml = "${project.android.sourceSets.main.res.srcDirs.first().absolutePath}/values/public.xml"
                     String aapt2 = "$sdkDir/build-tools/${project.android.getBuildToolsVersion()}/aapt2"
-                    "$aapt2 compile -o  $mergeResourcesOutPath $publicXml".execute().waitFor()
-                    if (!project.file(mergeResourcesOutPath + "/values_public.arsc.flat").exists()) {
-                        throw new FileNotFoundException("values_public.arsc.flat 文件未生成")
+                    def result = "$aapt2 compile -o  $mergeResourcesOutPath $publicXml".execute().waitFor()
+                    if (result != 0) {
+                        //
                     }
                 }
             }
@@ -30,4 +30,27 @@ class PublicXmlPlugin implements Plugin<Project> {
             project.android.libraryVariants.all task
         }
     }
+}
+
+android {
+    afterEvaluate {
+        def moduleVariants = android.applicationVariants ?: android.libraryVariants
+        for (variant in moduleVariants) {
+            def varName = variant.name
+            project.tasks.findByName(
+                    "transformClassesAndResourcesWithProguardFor" +
+                            "${varName.capitalize()}")
+                    ?.doFirst {
+                        getTransform().applyMapping(file("mappingfile.txt"));
+                    }
+            variant.javaCompileProvider.configure {
+                it.doLast {
+                    classpath.each { jarPath ->
+                        println "jarPath=======$jarPath"
+                    }
+                }
+            }
+        }
+    }
+    aaptOptions.additionalParameters("--emit-ids", project.buildDir.absolutePath + "/outputs/public_resouces.txt")
 }

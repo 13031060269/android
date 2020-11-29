@@ -3,12 +3,9 @@ package com.lwp.lib.host
 import android.app.Activity
 import android.app.Application
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.pm.*
 import android.content.res.Resources
-import android.util.ArrayMap
-import android.view.View
 import com.lwp.lib.host.classloader.FrameworkClassLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,34 +23,28 @@ internal val pkgMap = HashMap<String?, WeakReference<ApkControl>>()
 
 @Volatile
 internal var apkId: String? = null
-internal lateinit var hostPackageName: String
 internal lateinit var hostActivityInfo: ActivityInfo
 internal lateinit var hostComponentName: ComponentName
 internal lateinit var frameworkClassLoader: FrameworkClassLoader
 internal lateinit var resources: Resources
 
-//internal val hostPMS = HostServiceManager()
-internal val viewMap = ArrayMap<String, Class<out View>>()
 internal fun findApkInfo(tag: String?): ApkControl? {
     return idMap[tag]?.get() ?: pkgMap[tag]?.get()
 }
-
-internal val view = View::class.java
 
 object HostManager {
 
     private lateinit var application: Application
 
     fun init(application: Application) {
-        HostServiceManager.hookPMS(application)
+        HostPMS.hookPMS(application)
         initFirst(application)
         this.application = application
         resources = application.resources
-        hostPackageName = application.packageName
-        hostComponentName = ComponentName(hostPackageName, pluginActivity)
+        hostComponentName = ComponentName(application.packageName, pluginActivity)
         hostActivityInfo = ActivityInfo()
-        hostActivityInfo.packageName=hostPackageName
-        hostActivityInfo.name= pluginActivity
+        hostActivityInfo.packageName = hostComponentName.packageName
+        hostActivityInfo.name = pluginActivity
         val mPackageInfo: Any = HostUtils.getFieldValue(
             application,
             "mBase.mPackageInfo", true
@@ -69,9 +60,9 @@ object HostManager {
     fun startActivityForResult(fromAct: Activity, id: String, intent: Intent): Intent {
         return intent.apply {
             component?.apply {
-                findActivityInfo(intent.component)?.apply {
+                findActivityInfo(this)?.apply {
                     component = hostComponentName
-                    findApkInfo(packageName)!!.push(this)
+                    findApkInfo(packageName)!!.push(fromAct,this)
                 }
             }
         }
@@ -113,7 +104,7 @@ object HostManager {
                                 or PackageManager.GET_META_DATA //
                                 or PackageManager.GET_SHARED_LIBRARY_FILES //
                                 or PackageManager.GET_SERVICES //
-                                or PackageManager.GET_SIGNATURES //
+//                                or PackageManager.GET_SIGNATURES //
                     )?.run {
                         val id = "${packageName}_${versionName}_$versionCode"
                         if (idMap[id]?.get() == null) {

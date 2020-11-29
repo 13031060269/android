@@ -9,7 +9,7 @@ internal abstract class PluginClassLoader(
     dexPath: String?,
     private val optimizedDirectory: String?,
     private val librarySearchPath: String?,
-    parent:ClassLoader?
+    parent: ClassLoader?
 ) :
     DexClassLoader(dexPath, optimizedDirectory, librarySearchPath, parent) {
     var stack: Stack<ActivityInfo> = Stack()
@@ -18,7 +18,7 @@ internal abstract class PluginClassLoader(
 
     @kotlin.jvm.Throws(ClassNotFoundException::class)
     public override fun loadClass(className: String, resolve: Boolean): Class<*>? {
-        var result: Class<*>? = viewMap[className]
+        var result: Class<*>? = null
         if (className == pluginActivity) {
             val superClass = stack.peek().name
             var actLoader = activityMap[superClass]
@@ -47,11 +47,7 @@ internal abstract class PluginClassLoader(
             }
         }
         if (result == null) {
-            printLog("loader$className 失败")
             throw ClassNotFoundException(className)
-        }
-        if (view.isAssignableFrom(result)) {
-            viewMap[className] = result.asSubclass(view)
         }
         return result
     }
