@@ -46,6 +46,7 @@ android {
 //    implementation 'com.android.tools.build:gradle:4.1.1'
 //    implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
+    aaptOptions.additionalParameters("--stable-ids", "${file('public_resouces.txt').absolutePath}")
 }
 
 dependencies {

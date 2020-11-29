@@ -28,7 +28,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    aaptOptions.additionalParameters("--stable-ids", "${file('generated_exported_all_resouces.txt').absolutePath}")
+    aaptOptions.additionalParameters("--stable-ids", "${file('public_resouces.txt').absolutePath}")
 }
 
 dependencies {
