@@ -12,6 +12,7 @@ android {
         targetSdkVersion targetVersion
         versionCode 2
         versionName "1.1"
+        applicationId "com.lwp.test"
 
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -24,11 +25,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    aaptOptions.additionalParameters("--stable-ids", "${file('public_resouces.txt').absolutePath}")
 }
 
 dependencies {

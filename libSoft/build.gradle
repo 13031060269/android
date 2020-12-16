@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
@@ -7,7 +7,6 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.lwp.soft"
         minSdkVersion minVersion
         targetSdkVersion targetVersion
         versionCode 1
@@ -32,5 +31,18 @@ android {
     dependencies {
         implementation fileTree(dir: 'libs', include: ['*.jar'])
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    }
+}
+
+
+apply plugin: 'maven'
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = "com.lwp"
+            pom.artifactId = "soft"
+            pom.version = 1
+            repository(url: uri("$MVN_STORE"))
+        }
     }
 }

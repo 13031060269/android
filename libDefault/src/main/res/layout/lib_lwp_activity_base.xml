@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <variable
             name="data"
-            type="com.lwp.lib.mvp.RootModel" />
-
+            type="com.lwp.lib.mvp.view_model.UIViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,21 +17,22 @@
         tools:context=".BaseActivity">
 
         <ViewStub
-            android:id="@+id/base_root"
+            android:id="@+id/view_stub"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:tag="ViewStubTag" />
 
         <include
             android:id="@+id/layout_error"
             layout="@layout/lib_lwp_base_error"
-            android:visibility="@{data.showError}"
-            bind:data="@{data}" />
+            android:visibility="@{data.model.error}"
+            app:data="@{data}" />
 
         <include
             android:id="@+id/layout_loading"
             layout="@layout/lib_lwp_base_loading"
-            android:visibility="@{data.showLoading}"
-            bind:data="@{data}" />
+            android:visibility="@{data.model.loading}"
+            app:data="@{data}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

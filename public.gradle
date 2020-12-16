@@ -31,26 +31,3 @@ class PublicXmlPlugin implements Plugin<Project> {
         }
     }
 }
-
-android {
-    afterEvaluate {
-        def moduleVariants = android.applicationVariants ?: android.libraryVariants
-        for (variant in moduleVariants) {
-            def varName = variant.name
-            project.tasks.findByName(
-                    "transformClassesAndResourcesWithProguardFor" +
-                            "${varName.capitalize()}")
-                    ?.doFirst {
-                        getTransform().applyMapping(file("mappingfile.txt"));
-                    }
-            variant.javaCompileProvider.configure {
-                it.doLast {
-                    classpath.each { jarPath ->
-                        println "jarPath=======$jarPath"
-                    }
-                }
-            }
-        }
-    }
-    aaptOptions.additionalParameters("--emit-ids", project.buildDir.absolutePath + "/outputs/public_resouces.txt")
-}

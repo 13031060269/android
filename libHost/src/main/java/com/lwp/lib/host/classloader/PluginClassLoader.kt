@@ -17,7 +17,7 @@ internal abstract class PluginClassLoader(
     abstract fun createActivityDex(activityName: String): String
 
     @kotlin.jvm.Throws(ClassNotFoundException::class)
-    public override fun loadClass(className: String, resolve: Boolean): Class<*>? {
+    public override fun loadClass(className: String, resolve: Boolean): Class<*> {
         var result: Class<*>? = null
         if (className == pluginActivity) {
             val superClass = stack.peek().name

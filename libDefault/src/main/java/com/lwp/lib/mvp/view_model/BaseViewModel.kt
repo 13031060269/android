@@ -1,41 +1,46 @@
-package com.lwp.lib.mvp
+package com.lwp.lib.mvp.view_model
 
-import androidx.lifecycle.ViewModel
+import android.view.View
 import androidx.lifecycle.viewModelScope
 import com.lwp.lib.network.LwpRequestBody
 import com.lwp.lib.network.LwpResponseBody
 import com.lwp.lib.network.loadData
-import com.lwp.lib.utils.*
-import kotlinx.coroutines.Job
+import com.lwp.lib.utils.CoroutineUtils
+import com.lwp.lib.utils.SUCCESS
+import com.lwp.lib.utils.fromJson
 
-abstract class BaseModel : ViewModel() {
-    var rootModel: RootModel? = null
-    abstract fun onCreate()//
-
-    inline fun loadString(
+open class BaseViewModel<T> : LwpViewModel<T>() {
+    inline fun <reified D> load(
         requestBody: LwpRequestBody,
-        crossinline success: (String?) -> Unit,
+        crossinline success: (D?) -> Unit,
         crossinline error: (HttpException) -> Unit = {
-            rootModel?.dismissLoading()
-            rootModel?.showToast(it.msg)
-        }
+            showError()
+            showToast(it.msg)
+        },
     ) {
-        onUI {
+        onIO {
             try {
-                val body = loadData<String>(requestBody)
-                success(body)
+                val body = onIo { loadData<D>(requestBody) }
+                onUi {
+                    success(body)
+                }
             } catch (e: HttpException) {
-                error(e)
+                onUi {
+                    error(e)
+                }
             }
         }
+    }
+    open fun onClick(view: View){
+
     }
 
     inline fun <reified T> loadResponseBodyData(
         requestBody: LwpRequestBody,
         crossinline success: (T?) -> Unit,
         crossinline error: (HttpException) -> Unit = {
-            rootModel?.dismissLoading()
-            rootModel?.showToast(it.msg)
+            dismissLoading()
+            showToast(it.msg)
         }
     ) {
         onIO {
@@ -58,16 +63,11 @@ abstract class BaseModel : ViewModel() {
 
     }
 
+    fun onUI(block: suspend () -> Unit) = CoroutineUtils.onUI(viewModelScope, block)
+    fun onIO(block: suspend () -> Unit) = CoroutineUtils.onIO(viewModelScope, block)
+    suspend fun <T> onUi(block: suspend () -> T): T = CoroutineUtils.onUi(block)
+    suspend fun <T> onIo(block: suspend () -> T): T = CoroutineUtils.onIo(block)
 
-    override fun onCleared() {
-        rootModel = null
-    }
-
-    fun onUI(block: suspend () -> Unit): Job =
-        onUI(viewModelScope) { block() }
-
-    fun onIO(block: suspend () -> Unit): Job =
-        onIO(viewModelScope) { block() }
 }
 
 data class HttpException(val msg: String?, val code: Int = SUCCESS) : Exception(msg)

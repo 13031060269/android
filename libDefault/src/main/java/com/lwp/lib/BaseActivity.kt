@@ -2,21 +2,29 @@ package com.lwp.lib
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentActivity
-import com.lwp.lib.mvp.BaseModel
-import com.lwp.lib.mvp.GainLayout
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import com.lwp.lib.mvp.interfaces.GainLayout
 import com.lwp.lib.utils.ForResultHelper
-import kotlinx.android.synthetic.main.lib_lwp_activity_base.*
 
-abstract class BaseActivity<T : BaseModel> : FragmentActivity(), GainLayout<BaseActivity<T>, T> {
-    final override fun onCreate(savedInstanceState: Bundle?) {
+abstract class BaseActivity : AppCompatActivity(), GainLayout<BaseActivity> {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.lib_lwp_activity_base)
-        bind(root)
+        DataBindingUtil.setContentView<ViewDataBinding>(this, R.layout.lib_lwp_activity_base)
+            ?.apply {
+                onBind(
+                    this
+                )
+            }
     }
 
     override fun finish() {
         ForResultHelper.execute(intent)
         super.finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unbind()
     }
 }

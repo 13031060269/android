@@ -1,6 +1,6 @@
-package com.lwp.lib.host
+package com.lwp.lib.host.hook
 
-import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.content.ComponentName
 import android.content.Intent
 import android.content.IntentFilter
@@ -9,22 +9,27 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.UserHandle
+import com.lwp.lib.host.findApkInfo
+import com.lwp.lib.host.hostActivityInfo
+import com.lwp.lib.host.hostComponentName
+import com.lwp.lib.host.pluginActivity
 
-internal class HostPM(private val poxy: PackageManager, private val control: ApkControl) :
+internal class HookPM(private val poxy: PackageManager) :
     PackageManager() {
     @Throws(NameNotFoundException::class)
     override fun getPackageInfo(packageName: String, flags: Int): PackageInfo {
-        return control.packageInfo
+        return findApkInfo(packageName)?.packageInfo ?: poxy.getPackageInfo(packageName, flags)
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     @Throws(NameNotFoundException::class)
     override fun getPackageInfo(versionedPackage: VersionedPackage, flags: Int): PackageInfo {
-        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            poxy.getPackageInfo(versionedPackage, flags)
-        } else {
-            PackageInfo()
-        }
+        return findApkInfo(versionedPackage.packageName)?.packageInfo ?: poxy.getPackageInfo(
+            versionedPackage,
+            flags
+        )
     }
 
     fun getPermissionControllerPackageName(): String? {
@@ -51,17 +56,21 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
     }
 
     override fun getLeanbackLaunchIntentForPackage(packageName: String): Intent? {
-        return null
+        return poxy.getLeanbackLaunchIntentForPackage(packageName)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getPackageGids(packageName: String): IntArray {
-        return control.packageInfo.gids
+        return poxy.getPackageGids(hostComponentName.packageName)
     }
 
+    @TargetApi(Build.VERSION_CODES.N)
     @Throws(NameNotFoundException::class)
     override fun getPackageGids(packageName: String, flags: Int): IntArray {
-        return IntArray(0)
+        return findApkInfo(packageName)?.packageInfo?.gids ?: poxy.getPackageGids(
+            packageName,
+            flags
+        )
     }
 
     @Throws(NameNotFoundException::class)
@@ -90,7 +99,10 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
 
     @Throws(NameNotFoundException::class)
     override fun getApplicationInfo(packageName: String, flags: Int): ApplicationInfo {
-        return control.packageInfo.applicationInfo
+        return findApkInfo(packageName)?.mApplicationInfo ?: poxy.getApplicationInfo(
+            packageName,
+            flags
+        )
     }
 
     @Throws(NameNotFoundException::class)
@@ -123,8 +135,9 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         return poxy.checkPermission(permName, pkgName)
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun isPermissionRevokedByPolicy(permissionName: String, packageName: String): Boolean {
-        return false
+        return poxy.isPermissionRevokedByPolicy(permissionName, packageName)
     }
 
     override fun addPermission(info: PermissionInfo): Boolean {
@@ -159,34 +172,46 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         return poxy.getInstalledApplications(flags)
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun isInstantApp(): Boolean {
-        return false
+        return poxy.isInstantApp
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun isInstantApp(packageName: String): Boolean {
-        return false
+        return findApkInfo(packageName) != null || poxy.isInstantApp(packageName)
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun getInstantAppCookieMaxBytes(): Int {
-        return 0
+        return poxy.instantAppCookieMaxBytes
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun getInstantAppCookie(): ByteArray {
-        return ByteArray(0)
+        return poxy.instantAppCookie
     }
 
-    override fun clearInstantAppCookie() {}
-    override fun updateInstantAppCookie(cookie: ByteArray?) {}
+    @TargetApi(Build.VERSION_CODES.O)
+    override fun clearInstantAppCookie() {
+        poxy.clearInstantAppCookie()
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    override fun updateInstantAppCookie(cookie: ByteArray?) {
+        poxy.updateInstantAppCookie(cookie)
+    }
+
     override fun getSystemSharedLibraryNames(): Array<String>? {
         return poxy.systemSharedLibraryNames
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.O)
     override fun getSharedLibraries(flags: Int): List<SharedLibraryInfo> {
         return poxy.getSharedLibraries(flags)
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.O)
     override fun getChangedPackages(sequenceNumber: Int): ChangedPackages? {
         return poxy.getChangedPackages(sequenceNumber)
     }
@@ -199,8 +224,9 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         return poxy.hasSystemFeature(name)
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     override fun hasSystemFeature(featureName: String, version: Int): Boolean {
-        return false
+        return poxy.hasSystemFeature(featureName, version)
     }
 
     override fun resolveActivity(intent: Intent, flags: Int): ResolveInfo? {
@@ -276,12 +302,12 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
 
     @Throws(NameNotFoundException::class)
     override fun getActivityBanner(activityName: ComponentName): Drawable? {
-        return null
+        return poxy.getActivityBanner(activityName)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getActivityBanner(intent: Intent): Drawable? {
-        return null
+        return poxy.getActivityBanner(intent)
     }
 
     override fun getDefaultActivityIcon(): Drawable {
@@ -298,35 +324,35 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
     }
 
     override fun getApplicationBanner(info: ApplicationInfo): Drawable? {
-        return null
+        return poxy.getApplicationBanner(info)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getApplicationBanner(packageName: String): Drawable? {
-        return null
+        return poxy.getApplicationBanner(packageName)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getActivityLogo(activityName: ComponentName): Drawable? {
-        return null
+        return poxy.getActivityLogo(activityName)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getActivityLogo(intent: Intent): Drawable? {
-        return null
+        return poxy.getActivityLogo(intent)
     }
 
     override fun getApplicationLogo(info: ApplicationInfo): Drawable? {
-        return null
+        return poxy.getApplicationLogo(info)
     }
 
     @Throws(NameNotFoundException::class)
     override fun getApplicationLogo(packageName: String): Drawable? {
-        return null
+        return poxy.getApplicationLogo(packageName)
     }
 
     override fun getUserBadgedIcon(drawable: Drawable, user: UserHandle): Drawable? {
-        return null
+        return poxy.getUserBadgedIcon(drawable, user)
     }
 
     override fun getUserBadgedDrawableForDensity(
@@ -335,29 +361,29 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         badgeLocation: Rect,
         badgeDensity: Int
     ): Drawable? {
-        return null
+        return poxy.getUserBadgedDrawableForDensity(drawable, user, badgeLocation, badgeDensity)
     }
 
     override fun getUserBadgedLabel(label: CharSequence, user: UserHandle): CharSequence? {
-        return null
+        return poxy.getUserBadgedLabel(label, user)
     }
 
     override fun getText(
         packageName: String, resid: Int,
         appInfo: ApplicationInfo
     ): CharSequence? {
-        return null
+        return poxy.getText(packageName, resid, appInfo)
     }
 
     override fun getXml(
         packageName: String, resid: Int,
         appInfo: ApplicationInfo
     ): XmlResourceParser? {
-        return null
+        return poxy.getXml(packageName, resid, appInfo)
     }
 
     override fun getApplicationLabel(info: ApplicationInfo): CharSequence? {
-        return null
+        return poxy.getApplicationLabel(info)
     }
 
     @Throws(NameNotFoundException::class)
@@ -376,39 +402,44 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
     }
 
     override fun getInstallerPackageName(packageName: String): String? {
-        return null
+        return poxy.getInstallerPackageName(packageName)
     }
 
     override fun addPackageToPreferred(packageName: String) {
+        poxy.addPackageToPreferred(packageName)
     }
 
     override fun removePackageFromPreferred(packageName: String) {
+        poxy.removePackageFromPreferred(packageName)
     }
 
     override fun getPreferredPackages(flags: Int): List<PackageInfo>? {
-        return null
+        return poxy.getPreferredPackages(flags)
     }
 
     override fun addPreferredActivity(
         filter: IntentFilter, match: Int,
         set: Array<ComponentName>, activity: ComponentName
     ) {
+        poxy.addPreferredActivity(filter, match, set, activity)
     }
 
     override fun clearPackagePreferredActivities(packageName: String) {
+        poxy.clearPackagePreferredActivities(packageName)
     }
 
     override fun getPreferredActivities(
         outFilters: List<IntentFilter>,
         outActivities: List<ComponentName>, packageName: String
     ): Int {
-        return 0
+        return poxy.getPreferredActivities(outFilters, outActivities, packageName)
     }
 
     override fun setComponentEnabledSetting(
         componentName: ComponentName,
         newState: Int, flags: Int
     ) {
+        poxy.setComponentEnabledSetting(componentName, newState, flags)
     }
 
     override fun getComponentEnabledSetting(componentName: ComponentName): Int {
@@ -419,6 +450,7 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         packageName: String, newState: Int,
         flags: Int
     ) {
+        poxy.setApplicationEnabledSetting(packageName, newState, flags)
     }
 
     override fun getApplicationEnabledSetting(packageName: String): Int {
@@ -429,14 +461,17 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         return poxy.isSafeMode
     }
 
-    override fun setApplicationCategoryHint(packageName: String, categoryHint: Int) {}
+    @TargetApi(Build.VERSION_CODES.O)
+    override fun setApplicationCategoryHint(packageName: String, categoryHint: Int) {
+        poxy.setApplicationCategoryHint(packageName, categoryHint)
+    }
 
-    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.O)
     override fun getPackageInstaller(): PackageInstaller {
         return poxy.packageInstaller
     }
 
-    @SuppressLint("NewApi")
+    @TargetApi(Build.VERSION_CODES.O)
     override fun canRequestPackageInstalls(): Boolean {
         return poxy.canRequestPackageInstalls()
     }
@@ -445,14 +480,15 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         permissions: Array<String>,
         flags: Int
     ): List<PackageInfo>? {
-        return null
+        return poxy.getPackagesHoldingPermissions(permissions, flags)
     }
 
     override fun queryIntentContentProviders(intent: Intent, flags: Int): List<ResolveInfo>? {
-        return null
+        return poxy.queryIntentContentProviders(intent, flags)
     }
 
     override fun verifyPendingInstall(id: Int, verificationCode: Int) {
+        poxy.verifyPendingInstall(id, verificationCode)
     }
 
     override fun extendVerificationTimeout(
@@ -460,8 +496,10 @@ internal class HostPM(private val poxy: PackageManager, private val control: Apk
         verificationCodeAtTimeout: Int,
         millisecondsToDelay: Long
     ) {
+        poxy.extendVerificationTimeout(id, verificationCodeAtTimeout, millisecondsToDelay)
     }
 
     override fun setInstallerPackageName(targetPackage: String, installerPackageName: String) {
+        poxy.setInstallerPackageName(targetPackage, installerPackageName)
     }
 }

@@ -2,9 +2,6 @@ package android.content.pm;
 
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.ArrayMap;
-import android.util.ArraySet;
-
 import java.io.File;
 import java.security.PublicKey;
 import java.util.ArrayList;
@@ -106,9 +103,6 @@ public class PackageParser {
 
         public int mCompileSdkVersion;
         public String mCompileSdkVersionCodename;
-
-        public ArraySet<String> mUpgradeKeySets;
-        public ArrayMap<String, ArraySet<PublicKey>> mKeySetMapping;
 
         public String cpuAbiOverride;
         public boolean use32bitAbi;

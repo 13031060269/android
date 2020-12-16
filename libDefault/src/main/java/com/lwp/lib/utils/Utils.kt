@@ -2,15 +2,7 @@ package com.lwp.lib.utils
 
 import com.lwp.lib.database.Cache
 import com.lwp.lib.database.cacheDao
-import com.lwp.lib.mvp.BaseModel
-import java.lang.reflect.ParameterizedType
-
-fun <T : BaseModel> getGenericType(obj: Any): Class<T> {
-    val childClazz: Class<*> = obj.javaClass //子类字节码对象
-    val genericSuperclass =
-        childClazz.genericSuperclass as ParameterizedType?
-    return cast(genericSuperclass!!.actualTypeArguments[0])
-}
+import java.lang.reflect.Field
 
 fun <T> cast(obj: Any?): T {
     return obj as T
@@ -35,4 +27,19 @@ inline fun <reified T> saveCache(t: T): Boolean {
             return true
         }
     }
+}
+
+fun findField(
+    targetClass: Class<*>,
+    fieldName: String,
+): Field? {
+    var rsField: Field? = null
+    try {
+        rsField = targetClass.getDeclaredField(fieldName)
+    } catch (e: NoSuchFieldException) {
+    }
+    if (rsField == null) {
+        rsField = targetClass.superclass?.run { findField(this, fieldName) }
+    }
+    return rsField
 }

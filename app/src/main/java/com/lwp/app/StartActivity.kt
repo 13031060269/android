@@ -12,7 +12,7 @@ class StartActivity : AppCompatActivity() {
         setContentView(R.layout.activity_start)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                val delay = 3
+                val delay = 1
                 repeat(delay) {
                     withContext(Dispatchers.Main) {
                         tv.text = "${delay - it}"
@@ -20,8 +20,8 @@ class StartActivity : AppCompatActivity() {
                     delay(1000)
                 }
             }
-            finish()
             startActivity(Intent(this@StartActivity, MainActivity::class.java))
+            finish()
         }
     }
 }

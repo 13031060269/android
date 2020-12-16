@@ -1,37 +1,38 @@
 package com.lwp.lib.host
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.*
 import android.content.pm.*
-import android.content.res.AssetManager
-import android.content.res.PluginResource
 import android.content.res.Resources
 import android.os.Bundle
 import android.view.WindowManager
 import com.lwp.lib.host.HostManager.startActivityForResult
 import com.lwp.lib.host.classloader.FrameworkClassLoader
 import com.lwp.lib.host.classloader.PluginClassLoader
+import com.lwp.lib.host.hook.HookContextWrapper
+import com.lwp.lib.host.utils.printLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.*
 
 internal class ApkControl(
     hostManager: HostManager,
     val id: String,
     val packageInfo: PackageInfo,
-    private val frameworkClassLoader: FrameworkClassLoader
+    frameworkClassLoader: FrameworkClassLoader
 ) : PluginClassLoader(
     "${dir(id)}$apkPath",
     "${dir(id)}$optimized",
-    "${dir(id)}$libPath", null,
+    "${dir(id)}$libPath", frameworkClassLoader.parent,
 ) {
-    val mAssetManager: AssetManager = AssetManager::class.java.newInstance()
-    internal val mResources: PluginResource
+    internal val mResources: Resources
     lateinit var application: Application
-    lateinit var ctxWrapper: HostContextWrapper
-    val packageName: String = packageInfo.packageName
+    lateinit var ctxWrapper: HookContextWrapper
+    private val packageName: String = packageInfo.packageName
     val dir = dir(id)
     internal val mApplicationInfo: ApplicationInfo = packageInfo.applicationInfo
     var windowAnimations = 0
@@ -39,7 +40,7 @@ internal class ApkControl(
     private var launchActivityInfo: ResolveInfo? = null
     private val resolvers = LinkedList<ResolveInfo>()
     private fun activityPath(activityName: String): String = "$dir$activitiesPath$activityName.dex"
-    lateinit var inflater: HostLayoutInflater
+    private val contextImpl: Context
 
     override fun createActivityDex(activityName: String): String {
         return ClassGenerator.createActivityDex<Any, Any>(
@@ -51,20 +52,18 @@ internal class ApkControl(
     }
 
     init {
-        mAssetManager.javaClass.getMethod(
-            "addAssetPath", String::
-            class.java
-        ).invoke(mAssetManager, dir + apkPath)
-        val baseRes: Resources = hostManager.application().resources
-        mResources = PluginResource(
-            mAssetManager, baseRes.displayMetrics,
-            baseRes.configuration
-        )
+        val weak = WeakReference(this)
+        idMap[id] = weak
+        pkgMap[packageName] = weak
         mApplicationInfo.sourceDir = dir + apkPath
         mApplicationInfo.dataDir = dir
         mApplicationInfo.nativeLibraryDir = dir + libPath
         mApplicationInfo.publicSourceDir = dir + apkPath
-
+        mApplicationInfo.sharedLibraryFiles =
+            arrayOf(hostManager.application().applicationInfo.sourceDir)
+        mResources = hostManager.application().packageManager
+            .getResourcesForApplication(mApplicationInfo)
+        contextImpl = hostManager.application().createPackageContext(packageName, 0)
         try {
             PackageParser().parseMonolithicPackage(
                 File("${dir(id)}$apkPath"), 0
@@ -117,23 +116,19 @@ internal class ApkControl(
         stack.push(activityInfo)
     }
 
+    @SuppressLint("DiscouragedPrivateApi")
     suspend fun attach(context: Application) {
         withContext(Dispatchers.Main) {
-            val name = packageInfo.applicationInfo?.name
-            application = if (name.isNullOrEmpty()) {
-                Application()
-            } else {
-                loadClass(name, true)?.newInstance() as Application
-            }
-            ctxWrapper = HostContextWrapper(
-                context
-            )
-            inflater = HostLayoutInflater(ctxWrapper)
-            val attachMethod =
-                Application::class.java.getDeclaredMethod("attach", Context::class.java)
+            val sysApp = Application::class.java
+            application = loadClass(
+                packageInfo.applicationInfo?.name ?: sysApp.name,
+                true
+            ).newInstance() as Application
+            ctxWrapper = HookContextWrapper(context, this@ApkControl)
+            val attachMethod = sysApp.getDeclaredMethod("attach", Context::class.java)
             attachMethod.isAccessible = true
             attachMethod.invoke(application, ctxWrapper)
-            Application::class.java.getMethod(
+            sysApp.getMethod(
                 "registerComponentCallbacks",
                 Class.forName("android.content.ComponentCallbacks")
             ).invoke(context, application)
@@ -153,10 +148,10 @@ internal class ApkControl(
         return null
     }
 
-    fun findActivity(componentName: ComponentName): ActivityInfo? {
+    fun findActivity(componentName: ComponentName?): ActivityInfo? {
         packageInfo.activities?.forEach {
             it?.apply {
-                if (packageName == componentName.packageName && name == componentName.className) {
+                if (packageName == componentName?.packageName && name == componentName?.className) {
                     applicationInfo = packageInfo.applicationInfo
                     return this
                 }
@@ -192,78 +187,7 @@ internal class ApkControl(
             }
         }
         val actWrapper = ctxWrapper
-        return arrayOf(actWrapper, mAssetManager)
-    }
-
-    inner class HostContextWrapper(base: Context) :
-        ContextWrapper(base) {
-        private val mTheme =
-            mResources.newTheme().apply { applyStyle(packageInfo.applicationInfo.theme, false) }
-
-        val packageManager =
-            HostPM(super.getPackageManager(), this@ApkControl)
-        private val fileDir: File = File(dir, "/files/")
-        private val cacheDir: File = File(dir, "/caches/")
-        private val dataDir: File = File(dir)
-
-        override fun getSystemService(name: String): Any? {
-            if (name == LAYOUT_INFLATER_SERVICE) {
-                return inflater
-            }
-            return super.getSystemService(name)
-        }
-
-        override fun getCacheDir(): File {
-            return cacheDir
-        }
-
-        override fun getFilesDir(): File {
-            if (!fileDir.exists()) {
-                fileDir.mkdirs()
-            }
-            return fileDir
-        }
-
-        override fun getDataDir(): File {
-            return dataDir
-        }
-
-        override fun getPackageManager(): PackageManager {
-            return packageManager
-        }
-
-
-        override fun getApplicationInfo(): ApplicationInfo {
-            return mApplicationInfo
-        }
-
-        override fun getApplicationContext(): Context {
-            return application
-        }
-
-        override fun getPackageName(): String {
-            return applicationInfo.packageName
-        }
-
-        override fun getSharedPreferences(name: String?, mode: Int): SharedPreferences {
-            return super.getSharedPreferences("${packageName}_$name", mode)
-        }
-
-        override fun getContentResolver(): ContentResolver {
-            return super.getContentResolver()
-        }
-
-        override fun getResources(): Resources = mResources
-
-        override fun getAssets(): AssetManager = mAssetManager
-
-        override fun getTheme(): Resources.Theme {
-            return mTheme
-        }
-
-        override fun getClassLoader(): ClassLoader {
-            return frameworkClassLoader
-        }
+        return arrayOf(actWrapper, mResources.assets)
     }
 
     inner class SimpleLifeCycleCallBack : ActivityLifeCycle {

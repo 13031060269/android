@@ -1,53 +1,76 @@
 package com.lwp.app
 
 import android.Manifest
-import android.content.Intent
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.lwp.lib.BaseActivity
 import com.lwp.lib.host.HostManager
-import kotlinx.android.synthetic.main.activity_main.*
+import com.lwp.lib.mvp.view_model.BaseViewModel
+import com.lwp.lib.network.LwpRequestBodyDelay
+import com.lwp.lib.utils.POST
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-open class MainActivity : AppCompatActivity() {
+open class MainActivity : BaseActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        btn.setOnClickListener {
-            open("test.apk")
-        }
-        btn_2.setOnClickListener {
-            startActivity(Intent(this, StartActivity::class.java))
-        }
-        btn_3.setOnClickListener {
-            open("test3.apk")
-        }
-        if (ContextCompat.checkSelfPermission(
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-        } else {
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                0
-            );
+            ) -> {
+            }
+            else -> {
+                ActivityCompat.requestPermissions(
+                    this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    0
+                );
+            }
         }
 
     }
 
-    fun open(path: String) {
-        GlobalScope.launch {
-            HostManager.launch(
-                HostManager.install(
-                    "/sdcard/$path",
-//                    "x86"
-                ),
-                this@MainActivity
-            )
+    override fun getLayoutId(): Int = R.layout.activity_main
+}
+
+class MainViewModel : BaseViewModel<String>() {
+    override fun onClick(view: View) {
+        when (view.id) {
+            R.id.btn -> {
+                showLoading()
+                load<String>(
+                    LwpRequestBodyDelay(
+                        "Http://www.baidu.com",
+                        method = POST
+                    ),
+                    success = {
+                        dismissLoading()
+                    },
+                )
+
+            }
         }
+    }
+
+    override fun reload() {
+//        showLoading()
+        hideError()
+    }
+
+    fun open(path: String) {
+        if (context() is Activity)
+            GlobalScope.launch {
+                HostManager.launch(
+                    HostManager.install(
+                        "/sdcard/$path",
+                    ),
+                    context() as Activity
+                )
+            }
     }
 }

@@ -1,22 +1,26 @@
 package com.lwp.lib.network
 
-import com.lwp.lib.mvp.HttpException
+import android.os.SystemClock
+import com.lwp.lib.mvp.view_model.HttpException
 import com.lwp.lib.utils.*
+import kotlinx.coroutines.delay
 
 suspend inline fun <reified T> loadData(
-    requestBody: LwpRequestBody
+    requestBody: LwpRequestBody,
 ): T {
+    val uptimeMillis = SystemClock.uptimeMillis()
     return try {
-        onIo {
-            val responseBody = request(requestBody)
-            if (T::class.java == String::class.java) {
-                cast<T>(responseBody)
-            } else {
-                fromJson(responseBody)
-            }
+        val responseBody = request(requestBody)
+        val delay = SystemClock.uptimeMillis() - uptimeMillis
+        if (delay < requestBody.minDelay) {
+            delay(requestBody.minDelay - delay)
+        }
+        if (T::class.java == String::class.java) {
+            cast(responseBody)
+        } else {
+            fromJson(responseBody)
         }
     } catch (e: Exception) {
-        e.printStackTrace()
         throw HttpException(e.message, ERROR_NETWORK)
     }
 }

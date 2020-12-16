@@ -4,5 +4,8 @@
 
     <application>
         <activity android:name=".PluginActivity" />
+        <service
+            android:name=".HostService"
+            android:process=":plugin" />
     </application>
 </manifest>

@@ -1,12 +1,14 @@
 package com.lwp.lib.host
 
-import android.app.Activity
-import android.app.Application
+import android.app.*
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.*
 import android.content.res.Resources
 import com.lwp.lib.host.classloader.FrameworkClassLoader
+import com.lwp.lib.host.hook.HookPM
+import com.lwp.lib.host.utils.HostUtils
+import com.lwp.lib.host.utils.hook
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -27,7 +29,7 @@ internal lateinit var hostActivityInfo: ActivityInfo
 internal lateinit var hostComponentName: ComponentName
 internal lateinit var frameworkClassLoader: FrameworkClassLoader
 internal lateinit var resources: Resources
-
+internal lateinit var hostPackageManager: PackageManager
 internal fun findApkInfo(tag: String?): ApkControl? {
     return idMap[tag]?.get() ?: pkgMap[tag]?.get()
 }
@@ -37,9 +39,10 @@ object HostManager {
     private lateinit var application: Application
 
     fun init(application: Application) {
-        HostPMS.hookPMS(application)
-        initFirst(application)
         this.application = application
+        initFirst(application)
+        hook()
+        hostPackageManager = HookPM(application.packageManager)
         resources = application.resources
         hostComponentName = ComponentName(application.packageName, pluginActivity)
         hostActivityInfo = ActivityInfo()
@@ -62,7 +65,7 @@ object HostManager {
             component?.apply {
                 findActivityInfo(this)?.apply {
                     component = hostComponentName
-                    findApkInfo(packageName)!!.push(fromAct,this)
+                    findApkInfo(packageName)!!.push(fromAct, this)
                 }
             }
         }
@@ -91,7 +94,7 @@ object HostManager {
     fun application(): Application = application
 
     @Throws(Exception::class)
-    suspend fun install(path: String, arch: String = ""): String {
+    suspend fun install(path: String): String {
         return withContext(Dispatchers.Main) {
             withContext(Dispatchers.IO) {
                 val apkFile = File(path)
@@ -104,7 +107,7 @@ object HostManager {
                                 or PackageManager.GET_META_DATA //
                                 or PackageManager.GET_SHARED_LIBRARY_FILES //
                                 or PackageManager.GET_SERVICES //
-//                                or PackageManager.GET_SIGNATURES //
+                                or PackageManager.GET_SIGNATURES //
                     )?.run {
                         val id = "${packageName}_${versionName}_$versionCode"
                         if (idMap[id]?.get() == null) {
@@ -124,17 +127,14 @@ object HostManager {
                             }
                             try {
                                 ZipFile(apkFile, ZipFile.OPEN_READ).use {
-                                    extractLibFile(it, libDir, arch)
+                                    extractLibFile(it, libDir)
                                 }
                             } catch (e: Exception) {
                             }
 
-                            ApkControl(this@HostManager, id, this, frameworkClassLoader).apply {
-                                val weak = WeakReference(this)
-                                idMap[id] = weak
-                                pkgMap[packageName] = weak
-                                attach(HostManager.application)
-                            }
+                            ApkControl(this@HostManager, id, this, frameworkClassLoader).attach(
+                                application
+                            )
                         }
                         id
                     } ?: run {
@@ -149,8 +149,7 @@ object HostManager {
     }
 
     @Throws(IOException::class)
-    private fun extractLibFile(zip: ZipFile, tarDir: File, arch: String?): Boolean {
-        val defaultArch = arch?.takeIf { arch.isNullOrEmpty() } ?: "armeabi-v7a"
+    private fun extractLibFile(zip: ZipFile, tarDir: File): Boolean {
         val archLibEntries: MutableMap<String, MutableList<ZipEntry>> = HashMap()
         val e = zip.entries()
         while (e
@@ -171,7 +170,7 @@ object HostManager {
                     val osArch = name.substring(4, sp)
                     osArch.toLowerCase(Locale.getDefault())
                 } else {
-                    defaultArch
+                    continue
                 }
                 var ents = archLibEntries[en2add]
                 if (ents == null) {
@@ -181,20 +180,18 @@ object HostManager {
                 ents.add(entry)
             }
         }
-        val arch = System.getProperty("os.arch")
-        var libEntries: List<ZipEntry>? = archLibEntries[arch!!.toLowerCase(Locale.getDefault())]
-        if (libEntries == null) {
-            libEntries = archLibEntries[defaultArch]
-        }
         var hasLib = false
-        if (libEntries != null) {
-            hasLib = true
-            tarDir.mkdirs()
-            for (libEntry in libEntries) {
-                val name = libEntry.name
-                val pureName = name.substring(name.lastIndexOf('/') + 1)
-                val target = File(tarDir, pureName)
-                HostUtils.saveToFile(zip.getInputStream(libEntry), target)
+        android.os.Build.SUPPORTED_ABIS.forEach {
+            val libEntries = archLibEntries[it?.toLowerCase(Locale.getDefault())]
+            if (libEntries != null) {
+                hasLib = true
+                tarDir.mkdirs()
+                for (libEntry in libEntries) {
+                    val name = libEntry.name
+                    val pureName = name.substring(name.lastIndexOf('/') + 1)
+                    val target = File(tarDir, pureName)
+                    HostUtils.saveToFile(zip.getInputStream(libEntry), target)
+                }
             }
         }
         return hasLib

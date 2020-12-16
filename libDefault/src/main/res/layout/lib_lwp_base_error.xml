@@ -5,20 +5,21 @@
 
         <variable
             name="data"
-            type="com.lwp.lib.mvp.RootModel" />
+            type="com.lwp.lib.mvp.view_model.UIViewModel" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/errorBg"
-        android:gravity="center">
+        android:gravity="center"
+        android:onClick="@{()->data.reload()}">
 
         <TextView
             android:id="@+id/error_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@{data.errorText}" />
+            android:text="@{data.model.errorText}" />
     </LinearLayout>
 </layout>

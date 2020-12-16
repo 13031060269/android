@@ -1,30 +1,31 @@
-package com.lwp.lib.host
+package com.lwp.lib.host.hook
 
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import com.lwp.lib.host.HostManager
+import com.lwp.lib.host.findApkInfo
+import com.lwp.lib.host.hostActivityInfo
+import com.lwp.lib.host.pluginActivity
+import com.lwp.lib.host.utils.HostUtils
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
 import java.lang.reflect.Proxy
 
-object HostPMS : InvocationHandler {
+object HookPMS : InvocationHandler {
     var mPMS: Any? = null
     fun hookPMS(context: Context) {
         try {
-            val activityThreadClass = Class.forName("android.app.ActivityThread")
-            val sPackageManagerField = activityThreadClass.getDeclaredField("sPackageManager")
-            sPackageManagerField.isAccessible = true
-            mPMS = sPackageManagerField[null]
+            val hookAbout = hookAbout("android.app.ActivityThread")
+            val sPackageManager = hookAbout.getField<Any>("sPackageManager")
+            mPMS = sPackageManager
             val iPackageManagerInterface = Class.forName("android.content.pm.IPackageManager")
             val proxy = Proxy.newProxyInstance(
                 iPackageManagerInterface.classLoader, arrayOf(iPackageManagerInterface),
                 this
             )
-            sPackageManagerField[null] = proxy
-            val pm = context.packageManager
-            val mPmField = pm.javaClass.getDeclaredField("mPM")
-            mPmField.isAccessible = true
-            mPmField[pm] = proxy
+            hookAbout.setField("sPackageManager", proxy)
+            HostUtils.setFieldValue(context.packageManager, "mPM", proxy, true)
         } catch (ignored: Exception) {
         }
     }

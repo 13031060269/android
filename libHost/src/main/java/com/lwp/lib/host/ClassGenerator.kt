@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
 import com.android.dx.*
+import com.lwp.lib.host.utils.HostUtils
 import java.io.File
 import java.lang.reflect.Modifier
 
@@ -709,7 +710,6 @@ internal class ActivityOverrider {
                 fromAct.finish()
                 return
             }
-            HostWM(fromAct, info)
             try {
                 val applicationField = Activity::class.java
                     .getDeclaredField("mApplication")
@@ -735,6 +735,10 @@ internal class ActivityOverrider {
                     changeActivityInfo(info, fromAct)
                     fromAct.setTheme(resTheme)
                 }
+            }
+            fromAct.window.attributes = fromAct.window.attributes.apply {
+                windowAnimations = info.windowAnimations
+                packageName = hostComponentName.packageName
             }
             info.lifeCycle.onCreate(fromAct)
         }

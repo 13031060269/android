@@ -1,6 +1,11 @@
-package com.lwp.lib.host
+package com.lwp.lib.host.utils
 
+import android.content.ComponentName
 import android.util.Log
+import com.lwp.lib.host.DEBUG
+import com.lwp.lib.host.BUFF_SIZE
+import com.lwp.lib.host.KEY_SPLIT
+import com.lwp.lib.host.TAG
 import java.io.*
 import java.lang.reflect.Field
 
@@ -10,6 +15,19 @@ fun printLog(info: String) {
     }
 }
 
+fun parseComponent(component: String?): ComponentName? {
+    val split = component?.split(KEY_SPLIT)
+    if (split?.size == 2) {
+        return ComponentName(split[0], split[1])
+    }
+    return null
+}
+
+fun formatComponent(component: ComponentName): String {
+    return "${component.packageName}$KEY_SPLIT${component.className}"
+}
+
+
 internal object HostUtils {
     @JvmStatic
     fun saveToFile(dataIns: InputStream, target: File) {
@@ -18,8 +36,8 @@ internal object HostUtils {
                 FileOutputStream(target)
             ).use {
                 var count: Int
-                val data = ByteArray(buffSize)
-                while (dataIns.read(data, 0, buffSize).apply { count = this } != -1) {
+                val data = ByteArray(BUFF_SIZE)
+                while (dataIns.read(data, 0, BUFF_SIZE).apply { count = this } != -1) {
                     it.write(data, 0, count)
                 }
             }

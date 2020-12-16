@@ -1,19 +1,12 @@
 package com.lwp.lib.host.classloader
 
-import com.lwp.lib.host.HostUtils
 import com.lwp.lib.host.apkId
 import com.lwp.lib.host.findApkInfo
+import com.lwp.lib.host.utils.HostUtils
 import dalvik.system.PathClassLoader
 
 internal class FrameworkClassLoader(private val baseClassLoader: ClassLoader) :
-    PathClassLoader("", null) {
-    init {
-        HostUtils.setFieldValue(
-            baseClassLoader, "parent",
-            null, true
-        )
-    }
-
+    PathClassLoader("", baseClassLoader) {
     @kotlin.jvm.Throws(ClassNotFoundException::class)
     override fun loadClass(className: String, resolve: Boolean): Class<*>? {
         return loadClass(className, resolve, false)
