@@ -17,6 +17,7 @@ class UIViewModel : LwpViewModel<UIModel>() {
 
     override fun reload() {
         reloadInterface?.reload()
+        reloadInterface = null
     }
 
     override fun showLoading(text: String) {

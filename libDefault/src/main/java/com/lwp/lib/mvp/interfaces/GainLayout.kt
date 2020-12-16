@@ -6,6 +6,7 @@ import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.lwp.lib.BR
@@ -14,6 +15,7 @@ import com.lwp.lib.mvp.view_model.LwpViewModel
 import com.lwp.lib.mvp.view_model.UIViewModel
 import com.lwp.lib.utils.cast
 import com.lwp.lib.utils.findField
+import java.lang.RuntimeException
 
 interface GainLayout<T> where T : LifecycleOwner, T : ViewModelStoreOwner {
     val that: T
@@ -24,30 +26,35 @@ interface GainLayout<T> where T : LifecycleOwner, T : ViewModelStoreOwner {
         get() = getViewModel(UIViewModel::class.java)
 
     fun getLayoutId(): Int
-    fun onBind(viewDataBinding: ViewDataBinding) {
+    fun onBind(viewDataBinding: ViewDataBinding,viewStub: ViewStub?) {
         uIViewModel.mContext = viewDataBinding.root.context
-        bind(viewDataBinding)
+        viewStub?.apply {
+            layoutResource = getLayoutId()
+            inflate(this)
+        }
+        bind(viewDataBinding, uIViewModel)
     }
 
     fun bind(
         viewDataBinding: ViewDataBinding?,
-    ): LwpViewModel<*>? = viewDataBinding?.run {
+        viewModel: ViewModel? = null
+    ) = viewDataBinding?.apply {
         list.add(this)
-        val clazz = findField(viewDataBinding::class.java, "mData")?.type?.asSubclass(
-            LwpViewModel::class.java
-        ) ?: return null
         lifecycleOwner = that
-        root.findViewById<ViewStub>(R.id.view_stub)?.apply {
-            layoutResource = getLayoutId()
-            inflate(this)
-        }
-        val viewModel = getViewModel(clazz)?.apply {
-            attach(uIViewModel, that.lifecycle)
-        }
-        setVariable(BR.data, viewModel)
+        setVariable(BR.data, viewModel ?: getViewModel(this))
         forEachViewStub(root as ViewGroup)
-        viewModel
     }
+
+    fun getViewModel(viewDataBinding: ViewDataBinding): LwpViewModel<*>? =
+        findField(viewDataBinding::class.java, "mData")?.type?.asSubclass(
+            LwpViewModel::class.java
+        )?.run {
+            getViewModel(this)
+                .apply {
+                    attach(uIViewModel, that.lifecycle)
+                }
+        }
+
 
     fun forEachViewStub(viewGroup: ViewGroup) {
         viewGroup.children.forEach {
@@ -77,5 +84,11 @@ interface GainLayout<T> where T : LifecycleOwner, T : ViewModelStoreOwner {
         list.forEach {
             it.unbind()
         }
+
     }
+}
+
+fun ViewDataBinding?.onBind(gainLayout: GainLayout<*>,viewStub: ViewStub?) = this?.run {
+    gainLayout.onBind(this,viewStub)
+    root
 }
