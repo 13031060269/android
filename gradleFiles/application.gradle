@@ -1,0 +1,153 @@
+class MakeApk2Aar {
+    boolean make
+}
+
+String cacheDir = buildDir.absolutePath + "/aar-cache"
+def ids = file("build/outputs/ids.txt").absolutePath
+android.aaptOptions {
+    additionalParameters "--emit-ids", ids
+    failOnMissingConfigEntry false
+}
+boolean isApp = project.getPlugins().hasPlugin("com.android.application")
+boolean isLib = project.getPlugins().hasPlugin("com.android.library")
+if (isLib) {
+    extensions.create("makeApk2Aar", MakeApk2Aar)
+    apply plugin: 'maven'
+}
+
+
+afterEvaluate {
+    if (isLib) {
+        String packageName = "package=\""
+        String content = file(android.sourceSets.main.manifest.toString()).text
+        int start = content.indexOf(packageName) + packageName.size()
+        packageName = content.substring(start, content.indexOf("\"", start))
+        int index = packageName.lastIndexOf(".")
+        String group_id = packageName.substring(0, index)
+        String artifact_id = packageName.substring(index + 1)
+        String version_name = android.defaultConfig.versionName
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository(url: uri("$MVN_STORE"))
+                    pom.project {
+                        name "lwp"
+                        version version_name
+                        artifactId artifact_id
+                        groupId group_id
+                        packaging "aar"
+                        description "这是一个aar！"
+                    }
+                }
+            }
+        }
+
+        tasks.findByName("bundleReleaseAar")?.doLast {
+            File aar = outputs.files.files.first()
+            copy {
+                from zipTree(aar)
+                into cacheDir
+            }
+
+            File cache = file(cacheDir)
+            clearEmpty(cache)
+            if (makeApk2Aar.make) {
+                File manifest = file(cacheDir + "/AndroidManifest.xml")
+                if (manifest.exists()) {
+                    manifest.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+                    manifest.append("\n<manifest package=\"$packageName\" />")
+                }
+            }
+            aar.delete()
+            String path = "${cacheDir}/classes"
+            "jar  -cf ${path}Apk.jar -C ${path} /".execute().waitFor()
+            file(path).deleteDir()
+            "jar  -cf ${aar.absolutePath} -C $cacheDir /".execute().waitFor()
+        }
+    } else if (isApp) {
+        String applicationId = android.defaultConfig.applicationId
+        tasks.findByName("mergeReleaseResources")?.doLast {
+            file(cacheDir).deleteDir()
+            copy {
+                from outputs.files.files
+                include "**/*.xml"
+                exclude "*.xml", "*.*/**", "values*/**"
+                into cacheDir + "/apkres"
+            }
+        }
+        tasks.findByName("minifyReleaseWithR8")?.doLast {
+            copy {
+                from outputs.files.files
+                include "**/*.txt"
+                into cacheDir + "/mapping"
+            }
+        }
+        tasks.findByName("mergeReleaseJavaResource")?.doLast {
+            outputs.files.files.each {
+                if (it.isDirectory()) {
+                    it.listFiles().each { file ->
+                        copy {
+                            from zipTree(file)
+                            into cacheDir + "/classes"
+                        }
+                    }
+                }
+            }
+        }
+        tasks.findByName("assembleRelease")?.doLast {
+            File gradle = file("build.gradle")
+            String originalGradle = gradle.text
+            try {
+                String text = originalGradle
+                text = text.replace("com.android.application", "com.android.library")
+                        .replace("\"${applicationId}\"", "//\"${applicationId}\"")
+                        .replace("shrinkResources", "//shrinkResources")
+                        .replace("minifyEnabled", "//minifyEnabled")
+                        .replace("zipAlignEnabled", "//zipAlignEnabled")
+                        .replace("implementation", "api")
+                text += "\nmakeApk2Aar { \n\tmake true \n}"
+                gradle.write(text)
+                makePublicXml(file(cacheDir + "/public.xml"), file(ids))
+                "${rootDir.absolutePath}/gradlew :${project.name}:uploadArchives".execute().waitFor()
+            } catch (e) {
+                e.printStackTrace()
+            }
+            gradle.write(originalGradle)
+        }
+    }
+}
+
+def clearEmpty(File... file) {
+    file?.each {
+        if (it.isDirectory()) {
+            def files = it.listFiles()
+            if (files == null || files.size() == 0) {
+                it.delete()
+            } else {
+                clearEmpty(files)
+            }
+        }
+    }
+}
+
+static def makePublicXml(File publicXml, File idFile) {
+    StringBuilder stringBuilder = new StringBuilder()
+    stringBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+    stringBuilder.append("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+    stringBuilder.append("\n<resources>")
+    if (idFile.exists()) {
+        idFile.readLines().each { text ->
+            if (!text.isEmpty()) {
+                stringBuilder.append("\n\t")
+                text = text.split(":")[1].split("/")
+                def type = text[0]
+                text = text[1].split(" = ")
+                def name = text[0]
+                def id = text[1]
+                stringBuilder.append("<public type=\"$type\" name=\"$name\" id=\"$id\" />")
+            }
+        }
+    }
+    stringBuilder.append("\n</resources>")
+    publicXml.write(stringBuilder.toString())
+}

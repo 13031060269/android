@@ -10,7 +10,7 @@ class PublicXmlPlugin implements Plugin<Project> {
         def task = { variant ->
             def publicXml = project.tasks.create("publicXml${variant.name.capitalize()}") {
                 description "publicXml"
-                group "hfax"
+                group "lwp"
                 doLast {
                     def mergeResources = variant.getMergeResourcesProvider().get()
                     String mergeResourcesOutPath = mergeResources.outputDir.get().getAsFile().absolutePath

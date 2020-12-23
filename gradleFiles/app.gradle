@@ -1,0 +1,137 @@
+apply plugin: 'maven-publish'
+
+def workDir = buildDir.absolutePath + "/host"
+def ids = workDir + "/id.txt"
+
+class AppId {
+    private String appId
+
+    void setAppId(String appId) {
+        this.appId = appId
+    }
+
+    String getAppId() {
+        return appId
+    }
+}
+
+configurations {
+    attach
+}
+extensions.create('appId', AppId)
+android.aaptOptions {
+    additionalParameters "--emit-ids", ids
+    failOnMissingConfigEntry false
+}
+
+afterEvaluate {
+    String applicationId
+    def variants = null
+    if (project.android.hasProperty("applicationVariants")) {
+        applicationId = android.defaultConfig.applicationId
+        variants = android.applicationVariants
+    } else if (project.android.hasProperty("libraryVariants")) {
+        applicationId = appId?.appId
+
+        variants = android.libraryVariants
+    }
+    int index = applicationId.lastIndexOf(".")
+    String group_id = applicationId.substring(0, index)
+    String artifact_id = applicationId.substring(index + 1)
+    String version_name = android.defaultConfig.versionName
+    variants?.each { variant ->
+        def varName = variant.name
+        def aar_Path = workDir + "/app${varName.capitalize()}.aar"
+        def dir = file("$workDir/$varName")
+        def res = file("$workDir/$varName/res")
+
+        File publicXml = file(dir.absolutePath + "/public.xml")
+        tasks.findByName("process${varName.capitalize()}Resources")?.doLast {
+            copy {
+                from outputs.files.files
+                include "R.txt"
+                into dir
+            }
+            copy {
+                from ids
+                into dir
+            }
+            StringBuilder stringBuilder = new StringBuilder()
+            stringBuilder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            stringBuilder.append("\n<!-- AUTO-GENERATED FILE.  DO NOT MODIFY -->");
+            stringBuilder.append("\n<resources>")
+            file(ids).readLines().each { text ->
+                if (!text.isEmpty()) {
+                    stringBuilder.append("\n\t")
+                    text = text.split(":")[1].split("/")
+                    def type = text[0]
+                    text = text[1].split(" = ")
+                    def name = text[0]
+                    def id = text[1]
+                    stringBuilder.append("<public type=\"$type\" name=\"$name\" id=\"$id\" />")
+                }
+            }
+            stringBuilder.append("\n</resources>")
+            publicXml.write(stringBuilder.toString())
+        }
+        tasks.findByName("merge${varName.capitalize()}Resources")?.doLast {
+            copy {
+                from outputs.files.files
+                include "**/*.xml"
+                exclude "*.xml", "*.*/**"
+//                exclude "*.xml", "*.*/**", "**/*-v4", "**/*-v17", "**/*-v20", "**/*-v21", "**/*-v23", "**/*-v24", "**/values-*", "**/layout-*"
+                into res
+            }
+        }
+        tasks.findByName("merge${varName.capitalize()}JavaResource")?.doLast {
+            outputs.files.files.each {
+                if (it.isDirectory()) {
+                    it.listFiles().each { file ->
+                        copy {
+                            from zipTree(file)
+                            exclude "android/support/**"
+                            into dir.absolutePath + "/classes"
+                        }
+                    }
+                }
+            }
+        }
+        tasks.findByName("minify${varName.capitalize()}WithR8")?.doLast {
+            outputs.files.files.each {
+                copy {
+                    from outputs.files.files
+                    include "*.txt"
+                    into new File(dir, "mapping")
+                }
+            }
+        }
+        Task assemble = tasks.findByName("assemble${varName.capitalize()}")
+        Task zipAar = tasks.create("zip${varName.capitalize()}Aar") {
+            doLast {
+                String path = "${dir.absolutePath}/classes"
+                "jar  -cf ${path}.jar -C ${path} /".execute().waitFor()
+                file(path).deleteDir()
+                "jar  -cf $aar_Path -C ${dir.absolutePath} /".execute().waitFor()
+            }
+        }
+        assemble?.finalizedBy zipAar
+        if (varName == "release") {
+            publishing {
+                publications {
+                    maven(MavenPublication) {
+                        groupId group_id
+                        artifactId artifact_id
+                        version version_name
+                        artifact aar_Path
+                    }
+                }
+                repositories {
+                    maven {
+                        url = uri("$MVN_STORE")
+                    }
+                }
+            }
+            zipAar.finalizedBy publish
+        }
+    }
+}

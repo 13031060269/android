@@ -7,7 +7,6 @@ buildscript {
     repositories {
         google()
         jcenter() { url 'http://maven.aliyun.com/nexus/content/groups/public' }
-
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
@@ -23,6 +22,9 @@ allprojects {
             dirs 'libs'
         }
         maven {
+            url "$MVN_STORE"
+        }
+        maven {
             url "http://mvn.gt.igexin.com/nexus/content/repositories/releases/"
         }
         maven { url "http://mini.server.com:18081/nexus/content/repositories/common-android/" }
@@ -35,9 +37,7 @@ allprojects {
         maven {
             url 'https://dl.bintray.com/zouyuhan/maven'
         }
-        maven {
-            url "$MVN_STORE"
-        }
+
     }
 }
 //subprojects {
