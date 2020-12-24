@@ -46,7 +46,7 @@ afterEvaluate {
                 }
             }
             clearEmpty(file(thisDir))
-            "jar  -cf ${ap_.absolutePath} -C $thisDir /".execute().waitFor()
+            "jar  -cfM ${ap_.absolutePath} -C $thisDir /".execute().waitFor()
         }
     }
 }

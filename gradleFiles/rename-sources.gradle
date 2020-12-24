@@ -5,6 +5,9 @@ afterEvaluate {
     packageName = content.substring(start, content.indexOf("\"", start))
     String packagePrefix = packageName.replace(".", "_") + "_"
     Set<String> renames = new HashSet<>()
+    String resKeep = android.sourceSets.main.res.srcDirs.first().absolutePath + "-keep"
+    file(resKeep).mkdirs()
+    android.sourceSets.main.res.srcDirs += resKeep
     fileTree(file("src/main/res")).each { file ->
         String type = file.parentFile.name
         String name = file.name
