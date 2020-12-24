@@ -1,58 +1,65 @@
+apply from: "./rename-sources.gradle"
+
 configurations {
     attach
 }
-def appDir = buildDir.absolutePath + "/father-aar"
+def appDir = buildDir.absolutePath + "/apk-source"
+def fatherDir = appDir + "/father"
+def thisDir = appDir + "/this"
+boolean isApp = project.getPlugins().hasPlugin("com.android.application")
 afterEvaluate {
-    String packageName = "package=\""
-    String content = file(android.sourceSets.main.manifest.toString()).text
-    int start = content.indexOf(packageName) + packageName.size()
-    packageName = content.substring(start, content.indexOf("\"", start))
-    String packagePrefix = packageName.replace(".", "_") + "_"
-
+    if (!isApp) return
+    file(fatherDir).deleteDir()
     configurations.attach.files.each { f ->
-        File file = file("$appDir/${f.name}")
-        if (file.exists()) return
         copy {
             from zipTree(f)
-            into file
+            include "apkres/**", "res_list.txt"
+            into fatherDir
         }
-        android.sourceSets.main.res.srcDirs += (file.absolutePath + "/res")
-        configurations['compile'].dependencies.add(project.dependencies.create(files(file.absolutePath + "/classes.jar")))
+        configurations['compileOnly'].dependencies.add(project.dependencies.create(files(f)))
     }
-    Set<String> renames = new HashSet<>()
-    android.sourceSets.main.res.srcDirs.each {
-        fileTree(it).each { file ->
-            String type = file.parentFile.name
-            String name = file.name
-            type = type.split("-")[0]
-            if (type != "values") {
-                if (!name.startsWith(packagePrefix)) {
-                    file.renameTo(file.absolutePath.replace(file.name, packagePrefix + file.name))
-                    renames.add(type + ":" + name.substring(0, name.indexOf(".")))
-                }
-            } else {
-                String text = file.text
-                new XmlParser().parse(file).children().each { Node child ->
-                    type = child.name()
-                    String childName = child.attribute("name")
-                    if (!childName.startsWith(packagePrefix)) {
-                        text = text.replaceFirst("\"$childName\"", "\"$packagePrefix$childName\"")
-                        renames.add(type + ":" + childName)
-                    }
-                }
-                file.write(text)
+    for (variant in android.applicationVariants) {
+        def varName = variant.name
+        def taskFix = varName.capitalize()
+        Task mergeResources = variant.getMergeResourcesProvider().get()
+        File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
+        String aapt2 = new File(buildToolsPath, "aapt2").absolutePath
+        mergeResources.doLast {
+            String mergeResourcesOutPath = mergeResources.outputDir.get().getAsFile().absolutePath
+            fileTree(appDir).each {
+                "$aapt2 compile -o  $mergeResourcesOutPath $it".execute().waitFor()
             }
         }
-    }
-    fileTree(file("src")).each { file ->
-        String text = file.text
-        renames.each { name ->
-            String[] data = name.split(":")
-            text = text
-                    .replace(String.join(".", data), String.join(".${packagePrefix}", data))
-                    .replace(String.join("/", data), String.join("/${packagePrefix}", data))
+        tasks.findByName("process${taskFix}Resources")?.doLast {
+            file(thisDir).deleteDir()
+            File ap_ = fileTree(resPackageOutputFolder).include("*.ap_").first()
+            copy {
+                from zipTree(ap_)
+                into thisDir
+            }
+            List<String> delSet = file("$fatherDir/res_list.txt").readLines()
+            ap_.delete()
+            fileTree(file(thisDir)).each {
+                String key = it.parentFile.name + "_" + it.name
+                if (delSet.contains(key.trim())) {
+                    it.delete()
+                }
+            }
+            clearEmpty(file(thisDir))
+            "jar  -cf ${ap_.absolutePath} -C $thisDir /".execute().waitFor()
         }
-        file.write(text)
     }
 }
 
+def clearEmpty(File... file) {
+    file?.each {
+        if (it.isDirectory()) {
+            def files = it.listFiles()
+            clearEmpty(files)
+            files = it.listFiles()
+            if (files == null || files.size() == 0) {
+                it.delete()
+            }
+        }
+    }
+}

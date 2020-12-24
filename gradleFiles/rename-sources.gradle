@@ -5,39 +5,37 @@ afterEvaluate {
     packageName = content.substring(start, content.indexOf("\"", start))
     String packagePrefix = packageName.replace(".", "_") + "_"
     Set<String> renames = new HashSet<>()
-    android.sourceSets.main.res.srcDirs.each {
-        fileTree(it).each { file ->
-            String type = file.parentFile.name
-            String name = file.name
-            type = type.split("-")[0]
-            if (type != "values") {
-                if (!name.startsWith(packagePrefix)) {
-                    file.renameTo(file.absolutePath.replace(file.name, packagePrefix + file.name))
-                    renames.add(type + ":" + name.substring(0, name.indexOf(".")))
-                }
-            } else {
-                String text = file.text
-                new XmlParser().parse(file).children().each { Node child ->
-                    type = child.name()
-                    String childName = child.attribute("name")
-                    if (!childName.startsWith(packagePrefix)) {
-                        text = text.replaceFirst("\"$childName\"", "\"$packagePrefix$childName\"")
-                        renames.add(type + ":" + childName)
-                    }
-                }
-                file.write(text)
+    fileTree(file("src/main/res")).each { file ->
+        String type = file.parentFile.name
+        String name = file.name
+        type = type.split("-")[0]
+        if (type != "values") {
+            if (!name.startsWith(packagePrefix)) {
+                file.renameTo(file.absolutePath.replace(file.name, packagePrefix + file.name))
+                renames.add(type + ":" + name.substring(0, name.indexOf(".")))
             }
+        } else {
+            String text = file.text
+            new XmlParser().parse(file).children().each { Node child ->
+                type = child.name()
+                String childName = child.attribute("name")
+                if (!childName.startsWith(packagePrefix)) {
+                    text = text.replaceFirst("\"$childName\"", "\"$packagePrefix$childName\"")
+                    renames.add(type + ":" + childName)
+                }
+            }
+            file.write(text)
         }
     }
+    if (renames.isEmpty()) return
     fileTree(file("src")).each { file ->
         String text = file.text
         renames.each { name ->
             String[] data = name.split(":")
             text = text
                     .replace(String.join(".", data), String.join(".${packagePrefix}", data))
-                    .replace(String.join("/", data), String.join("/${packagePrefix}", data))
+                    .replace("@" + String.join("/", data), "@" + String.join("/${packagePrefix}", data))
         }
         file.write(text)
     }
 }
-
