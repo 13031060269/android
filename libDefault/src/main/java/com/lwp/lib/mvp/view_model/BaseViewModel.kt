@@ -31,13 +31,14 @@ open class BaseViewModel<T> : LwpViewModel<T>() {
             }
         }
     }
-    open fun onClick(view: View){
+
+    open fun onClick(view: View) {
 
     }
 
-    inline fun <reified T> loadResponseBodyData(
+    inline fun <reified D> loadResponseBodyData(
         requestBody: LwpRequestBody,
-        crossinline success: (T?) -> Unit,
+        crossinline success: (D?) -> Unit,
         crossinline error: (HttpException) -> Unit = {
             dismissLoading()
             showToast(it.msg)
@@ -47,9 +48,9 @@ open class BaseViewModel<T> : LwpViewModel<T>() {
             try {
                 val body = loadData<LwpResponseBody<String>>(requestBody)
                 if (body.errCode == SUCCESS) {
-                    var fromJson: T? = null
+                    var fromJson: D? = null
                     body.data?.also {
-                        fromJson = fromJson<T>(body.data)
+                        fromJson = fromJson<D>(body.data)
                     }
                     onUI { success(fromJson) }
                 } else {

@@ -5,6 +5,5 @@ import com.lwp.lib.utils.*
 
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 @IntDef(value = [GET, POST, FORM])
-@MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
 annotation class Method

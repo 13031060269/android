@@ -1,7 +1,7 @@
 package com.lwp.lib.database
 
 import androidx.room.*
-import com.lwp.lib.APP
+import com.lwp.lib.MVVMConfig
 
 @Database(entities = [Cache::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
@@ -40,7 +40,7 @@ interface CacheDao {
 
 val cacheDao: CacheDao by lazy {
     Room.databaseBuilder(
-        APP.context,
+        MVVMConfig.myApplication,
         AppDatabase::class.java, "cache.db"
     )
         .allowMainThreadQueries() //允许在主线程中查询

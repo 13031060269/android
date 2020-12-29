@@ -1,7 +1,7 @@
 buildscript {
     ext.kotlin_version = '1.4.10'
     ext.room_version = "2.2.5"
-    ext.minVersion = 19
+    ext.minVersion = 21
     ext.targetVersion = 29
     ext.compileVersion = 29
     repositories {

@@ -58,9 +58,9 @@ internal class ApkControl(
         mApplicationInfo.sourceDir = dir + apkPath
         mApplicationInfo.dataDir = dir
         mApplicationInfo.nativeLibraryDir = dir + libPath
-        mApplicationInfo.publicSourceDir = dir + apkPath
-        mApplicationInfo.sharedLibraryFiles =
-            arrayOf(hostManager.application().applicationInfo.sourceDir)
+        mApplicationInfo.publicSourceDir = hostManager.application().applicationInfo.sourceDir
+        mApplicationInfo.splitPublicSourceDirs =
+            arrayOf(dir + apkPath)
         mResources = hostManager.application().packageManager
             .getResourcesForApplication(mApplicationInfo)
         contextImpl = hostManager.application().createPackageContext(packageName, 0)

@@ -11,9 +11,7 @@ class UIViewModel : LwpViewModel<UIModel>() {
     var reloadInterface: UiInterface? = null
 
     override fun context(): Context? = mContext
-    override fun initModel(): UIModel {
-        return UIModel()
-    }
+    override fun initModel(): UIModel = UIModel()
 
     override fun reload() {
         reloadInterface?.reload()

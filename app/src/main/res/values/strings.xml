@@ -1,4 +1,5 @@
 <resources>
+    <string name="a_b">LwpApp</string>
     <string name="app_name">LwpApp</string>
     <string name="title_activity_main">MainActivity</string>
     <!-- Strings used for fragments for navigation -->

@@ -40,9 +40,17 @@ class HookInstrumentation(private val poxy: Instrumentation) : Instrumentation()
         id: String?,
         lastNonConfigurationInstance: Any?
     ): Activity {
+        var cla = clazz
+        var con = context
+        parseComponent(intent?.getStringExtra(KEY_PLUGIN))?.apply {
+            findApkInfo(packageName)?.apply {
+                cla = loadClass(className)
+                con = ctxWrapper
+            }
+        }
         return poxy.newActivity(
-            clazz,
-            context,
+            cla,
+            con,
             token,
             application,
             intent,
@@ -62,6 +70,7 @@ class HookInstrumentation(private val poxy: Instrumentation) : Instrumentation()
                     .newInstance() as Activity
             }
         } catch (e: Exception) {
+            e.printStackTrace()
         }
         return poxy.newActivity(cl, className, intent)
     }

@@ -9,14 +9,21 @@ import com.lwp.lib.mvp.interfaces.UiInterface
 
 open class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
     val model: T by lazy { initModel() }
+
     open fun initModel(): T = throw RuntimeException("如果要使用model请重写initModel方法！！")
     private var mBase: LwpViewModel<*>? = null
     open fun context(): Context? = mBase?.context()
+    lateinit var flushSelf: () -> Unit
     var lifecycle: Lifecycle? = null
-    fun attach(mBase: LwpViewModel<*>, lifecycle: Lifecycle) {
+    fun attach(mBase: LwpViewModel<*>, lifecycle: Lifecycle, _flush: () -> Unit = {}) {
         this.mBase = mBase
         this.lifecycle = lifecycle
         lifecycle.addObserver(this)
+        this.flushSelf = _flush
+    }
+
+    fun flush() {
+        flushSelf()
     }
 
     override fun onCleared() {

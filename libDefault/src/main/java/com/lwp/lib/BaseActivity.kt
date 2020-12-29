@@ -11,14 +11,11 @@ import com.lwp.lib.utils.ForResultHelper
 import kotlinx.android.synthetic.main.lib_lwp_activity_base.*
 
 abstract class BaseActivity : AppCompatActivity(), GainLayout<BaseActivity> {
-    override val uIViewModel: UIViewModel by lazy {
-        getViewModel(UIViewModel::class.java)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         DataBindingUtil.setContentView<ViewDataBinding>(this, R.layout.lib_lwp_activity_base)
-            .onBind(this,view_stub)
+            .onBind(this, view_stub)
     }
 
     override fun finish() {

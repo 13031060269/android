@@ -19,20 +19,24 @@ class HookActivityMonitor : ActivityMonitor {
         result,
         block
     ) {
-//        try {
-//            (Class::class.java.getDeclaredMethod(
-//                "getDeclaredFieldsUnchecked",
-//                Boolean::class.javaPrimitiveType
-//            ).invoke(ActivityMonitor::class.java, false) as Array<Field>)
-//                .forEach {
-//                    if (it.name == "mIgnoreMatchingSpecificIntents") {
-//                        it.isAccessible = true
-//                        it.set(this, true)
-//                    }
-//                }
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
+        try {
+            (Class::class.java.getDeclaredMethod(
+                "getDeclaredFieldsUnchecked",
+                Boolean::class.javaPrimitiveType
+            ).invoke(ActivityMonitor::class.java, false) as Array<Field>)
+                .forEach {
+                    if (it.name == "mIgnoreMatchingSpecificIntents") {
+                        it.isAccessible = true
+                        it.set(this, true)
+                    }
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ActivityMonitor::class.java.getDeclaredField("mIgnoreMatchingSpecificIntents")?.apply {
+                isAccessible = true
+                set(this, true)
+            }
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.O)
