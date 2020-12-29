@@ -18,16 +18,15 @@ afterEvaluate {
         }
         configurations['compileOnly'].dependencies.add(project.dependencies.create(files(f)))
     }
+    String aapt = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion() + "/aapt2").absolutePath
     for (variant in android.applicationVariants) {
         def varName = variant.name
         def taskFix = varName.capitalize()
         Task mergeResources = variant.getMergeResourcesProvider().get()
-        File buildToolsPath = new File(android.getAdbExecutable().getParentFile().getParentFile(), "build-tools/" + android.getBuildToolsVersion())
-        String aapt2 = new File(buildToolsPath, "aapt2").absolutePath
         mergeResources.doLast {
             String mergeResourcesOutPath = mergeResources.outputDir.get().getAsFile().absolutePath
             fileTree(appDir).each {
-                "$aapt2 compile -o  $mergeResourcesOutPath $it".execute().waitFor()
+                "$aapt compile -o  $mergeResourcesOutPath $it".execute().waitFor()
             }
         }
         tasks.findByName("process${taskFix}Resources")?.doLast {

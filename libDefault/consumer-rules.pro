@@ -1,0 +1,2 @@
+-keep class com.lwp.lib.BaseActivity { *; }
+-keep class com.lwp.lib.mvp.interfaces.GainLayout { *; }

@@ -14,14 +14,13 @@ android {
         versionCode 1
         versionName "1.0.0"
         multiDexEnabled true
-
         resConfigs('zh-rCN')
     }
     buildTypes {
         debug {
-//            minifyEnabled true
-//            zipAlignEnabled true
-//            shrinkResources true
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
         }
         release {
             minifyEnabled true

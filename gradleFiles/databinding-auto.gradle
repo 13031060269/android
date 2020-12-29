@@ -50,7 +50,7 @@ afterEvaluate {
             classContent.append("\n")
             classContent.append("\nimport com.lwp.lib.mvp.interfaces.Factory")
             classContent.append("\n")
-            classContent.append("\nobject ${className} {")
+            classContent.append("\nclass ${className} {")
             classContent.append("\n")
             classContent.append("\n\tfun attach($viewDataBinding:ViewDataBinding ,factory: Factory): () -> List<Any?>{")
 

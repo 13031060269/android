@@ -35,7 +35,7 @@ afterEvaluate {
                 println file
                 if (file.isDirectory()) {
                     fileTree(file).each {
-                        if (it.name.startsWith("DataBindingHelper.")) {
+                        if (it.name.startsWith("DataBindingHelper")) {
                             it.delete()
                         }
                     }

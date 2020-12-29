@@ -26,6 +26,10 @@ interface GainLayout<T> : Factory where T : LifecycleOwner, T : ViewModelStoreOw
     val uIViewModel: UIViewModel
         get() = provider.get(UIViewModel::class.java)
 
+    companion object {
+        val help = DataBindingHelper()
+    }
+
     override fun <T> create(clazz: Class<T>): T {
         if (ViewModel::class.java.isAssignableFrom(clazz)) {
             return cast(provider.get(clazz.asSubclass(ViewModel::class.java)))
@@ -49,7 +53,7 @@ interface GainLayout<T> : Factory where T : LifecycleOwner, T : ViewModelStoreOw
     ) = viewDataBinding?.apply {
         list.add(this)
         lifecycleOwner = that
-        DataBindingHelper.attach(this, this@GainLayout).apply {
+        help.attach(this, this@GainLayout).apply {
             invoke().forEach {
                 if (it is LwpViewModel<*>) {
                     it.attach(uIViewModel, that.lifecycle) {
