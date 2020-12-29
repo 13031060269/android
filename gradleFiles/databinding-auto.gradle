@@ -37,7 +37,9 @@ afterEvaluate {
                     imports.add(obj.getString(it))
                 }
                 bean.variables = variables
-                listBean.add(bean)
+                if (variables.size() > 0) {
+                    listBean.add(bean)
+                }
             }
             String viewDataBinding = "viewDataBinding"
             StringBuilder classContent = new StringBuilder()

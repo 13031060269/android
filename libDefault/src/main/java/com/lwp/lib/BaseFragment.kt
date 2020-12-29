@@ -9,7 +9,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.lwp.lib.mvp.interfaces.GainLayout
 import com.lwp.lib.mvp.interfaces.onBind
-import com.lwp.lib.mvp.view_model.UIViewModel
 
 abstract class BaseFragment : Fragment(), GainLayout<BaseFragment> {
 

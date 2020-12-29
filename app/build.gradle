@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply from: '../gradleFiles/application.gradle'
 apply from: '../gradleFiles/databinding-auto.gradle'
@@ -15,6 +14,8 @@ android {
         versionName "1.0.0"
         multiDexEnabled true
         resConfigs('zh-rCN')
+        buildFeatures.viewBinding true
+        buildFeatures.dataBinding true
     }
     buildTypes {
         debug {
@@ -29,10 +30,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    buildFeatures {
-        dataBinding = true
-    }
-
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

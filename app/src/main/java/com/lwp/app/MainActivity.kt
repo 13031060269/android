@@ -12,7 +12,6 @@ import com.lwp.lib.BaseActivity
 import com.lwp.lib.BaseFragment
 import com.lwp.lib.host.HostManager
 import com.lwp.lib.mvp.view_model.BaseViewModel
-import kotlinx.android.synthetic.main.fragment_main.*
 
 open class MainActivity : BaseActivity() {
 
@@ -79,8 +78,5 @@ class MainFragment : BaseFragment() {
     override fun getLayoutId(): Int = R.layout.fragment_main
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tv.setOnClickListener {
-            Toast.makeText(activity, "222222222222", Toast.LENGTH_SHORT).show()
-        }
     }
 }

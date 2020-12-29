@@ -1,2 +1,3 @@
 -keep class com.lwp.lib.BaseActivity { *; }
+-keep class com.lwp.lib.BaseFragment { *; }
 -keep class com.lwp.lib.mvp.interfaces.GainLayout { *; }
