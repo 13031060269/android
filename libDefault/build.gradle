@@ -31,9 +31,8 @@ afterEvaluate {
         def taskFix = varName.capitalize()
         tasks.findByName("compile${taskFix}Kotlin")?.doLast {
             outputs.files.files.each { file ->
-                println file
                 if (file.isDirectory()) {
-                    fileTree(file).each {
+                    fileTree(new File(file, "com/lwp/lib")).each {
                         if (it.name.startsWith("DataBindingHelper")) {
                             it.delete()
                         }

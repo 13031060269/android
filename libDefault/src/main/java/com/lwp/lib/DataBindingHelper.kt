@@ -5,6 +5,6 @@ import com.lwp.lib.mvp.interfaces.Factory
 
 class DataBindingHelper {
     fun attach(viewDataBinding: ViewDataBinding, factory: Factory): () -> List<Any?> {
-        return { listOf() }
+        return { listOf(viewDataBinding,factory) }
     }
 }

@@ -4,6 +4,7 @@ import com.lwp.lib.database.Cache
 import com.lwp.lib.database.cacheDao
 import java.lang.reflect.Field
 
+@Suppress("UNCHECKED_CAST")
 fun <T> cast(obj: Any?): T {
     return obj as T
 }

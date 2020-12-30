@@ -17,10 +17,6 @@ if (isLib) {
 }
 
 afterEvaluate {
-    println 11111111111
-    project.getPlugins().each {
-        println it
-    }
     String packageName = "package=\""
     String content = file(android.sourceSets.main.manifest.toString()).text
     int start = content.indexOf(packageName) + packageName.size()
