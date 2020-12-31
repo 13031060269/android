@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply from: '../gradleFiles/application.gradle'
+apply from: '../gradleFiles/library.gradle'
 
 android {
     compileSdkVersion compileVersion
@@ -12,8 +12,12 @@ android {
         versionCode 2
         versionName "1.1.0"
         applicationId "com.lwp.test"
+        buildFeatures.viewBinding true
+        buildFeatures.dataBinding true
 
         consumerProguardFiles "consumer-rules.pro"
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
     }
     repositories {
         flatDir {
@@ -25,14 +29,18 @@ android {
         failOnMissingConfigEntry false
     }
     buildTypes {
+        debug {
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+        }
         release {
             minifyEnabled true
             zipAlignEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    implementation "com.lwp:app:1.0.0"
+    attach "com.lwp:app:1.0.0"
 }

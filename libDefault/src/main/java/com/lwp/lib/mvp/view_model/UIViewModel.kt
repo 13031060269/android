@@ -9,9 +9,7 @@ import com.lwp.lib.mvp.model.UIModel
 class UIViewModel : LwpViewModel<UIModel>() {
     var mContext: Context? = null
     var reloadInterface: UiInterface? = null
-
     override fun context(): Context? = mContext
-    override fun initModel(): UIModel = UIModel()
 
     override fun reload() {
         reloadInterface?.reload()

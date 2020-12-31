@@ -18,8 +18,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android" 
     android:interpolator="@android:anim/decelerate_interpolator">
     <translate 
-        android:fromXDelta="-50%p"
+        android:fromXDelta="100%p" 
         android:toXDelta="0%p"
-        android:duration="@integer/default_anim_duration" 
-        />
+        android:duration="@integer/com_lwp_test_default_anim_duration" />
 </set>

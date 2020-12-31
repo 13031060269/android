@@ -17,11 +17,15 @@ fun initFirst(context: Context) {
     outputPath = apkList.absolutePath
 }
 
-fun deleteFile(file: File): Boolean {
-    return if (file.exists() && file.isFile) {
+fun deleteFile(file: File) {
+    if (file.exists() && file.isFile) {
         file.delete()
     } else {
-        false
+        file.listFiles()?.forEach {
+            it?.run {
+                deleteFile(this)
+            }
+        }
     }
 }
 
@@ -41,6 +45,6 @@ fun clear(id: String, pkg: String) {
     }
 }
 
-fun deleteFile(fileName: String): Boolean {
-    return deleteFile(File(fileName))
+fun deleteFile(fileName: String) {
+    deleteFile(File(fileName))
 }

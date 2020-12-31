@@ -1,4 +1,4 @@
-apply from: "./rename-sources.gradle"
+apply from: "../gradleFiles/rename-sources.gradle"
 
 configurations {
     attach
@@ -36,7 +36,11 @@ afterEvaluate {
                 from zipTree(ap_)
                 into thisDir
             }
-            List<String> delSet = file("$fatherDir/res_list.txt").readLines()
+            File resList = file("$fatherDir/res_list.txt")
+            if (!resList.exists()) {
+                return
+            }
+            List<String> delSet = resList.readLines()
             ap_.delete()
             fileTree(file(thisDir)).each {
                 String key = it.parentFile.name + "_" + it.name

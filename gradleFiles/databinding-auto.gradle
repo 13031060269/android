@@ -5,22 +5,40 @@ afterEvaluate {
     if (!isApp) {
         return
     }
+
+
     android.applicationVariants.each { variant ->
         String varName = variant.name
+        String taskFix = varName.capitalize()
+        tasks.findByName("compile${taskFix}Kotlin")?.doLast {
+            classpath.each { File file ->
+                if (file.isFile()) {
+                    copy {
+                        from zipTree(file)
+                        into buildDir.absolutePath + "/classes"
+                    }
+                } else {
+                    copy {
+                        from fileTree(file)
+                        into buildDir.absolutePath + "/classes"
+                    }
+                }
+            }
+        }
+
         tasks.findByName("dataBindingGenBaseClasses${varName.capitalize()}")?.doLast {
-            File classFile = null
-            File artifactFile = null
             String className = "DataBindingHelper"
+            File classFile = new File(android.sourceSets.main.java.srcDirs.first().toString() + "/com/lwp/lib/${className}.kt")
+            File artifactFile = null
             outputs.files.files.each {
                 if (it.absolutePath.contains("data_binding_base_class_log_artifact")) {
                     artifactFile = it.listFiles().first()
-                } else if (it.absolutePath.contains("data_binding_base_class_source_out")) {
-                    classFile = new File("${it.absolutePath}/com/lwp/lib/${className}.kt")
                 }
             }
             List<DataBindingBean> listBean = new ArrayList<>()
             Set<String> imports = new HashSet<>()
             classFile.parentFile.mkdirs()
+            println classFile
             JSONObject jsonObject = new JSONObject(artifactFile.text)
             jsonObject = jsonObject.getJSONObject("mappings")
             jsonObject.keys().each { key ->
@@ -50,12 +68,16 @@ afterEvaluate {
             }
             classContent.append("\nimport androidx.databinding.ViewDataBinding")
             classContent.append("\n")
+            classContent.append("\nimport com.lwp.lib.utils.*")
+            classContent.append("\n")
             classContent.append("\nimport com.lwp.lib.mvp.interfaces.Factory")
             classContent.append("\n")
             classContent.append("\nclass ${className} {")
             classContent.append("\n")
             classContent.append("\n\tfun attach($viewDataBinding:ViewDataBinding ,factory: Factory): () -> List<Any?>{")
 
+            List<String> extension = new ArrayList<>()
+            Set<String> dataBindingSet = new HashSet<>()
             listBean.each {
                 String qualifiedName = it.qualifiedName.substring(it.qualifiedName.lastIndexOf(".") + 1)
                 classContent.append("\n\t\tif ($viewDataBinding is $qualifiedName){")
@@ -65,18 +87,44 @@ afterEvaluate {
                     String variableName = value.substring(value.lastIndexOf(".") + 1)
                     String name = variableName.uncapitalize()
                     classContent.append("\n\t\t\tval $name=factory.create(${variableName}::class.java)")
+
+                    String propertyName = "dataBinding"
+                    int index = 0
+                    String set = "$variableName.$propertyName"
+                    while (dataBindingSet.contains(set)) {
+                        index++
+                        propertyName = "dataBinding$index"
+                        set = "$variableName.$propertyName"
+                    }
+                    dataBindingSet.add(set)
+                    classContent.append("\n\t\t\t${name}?.$propertyName = $viewDataBinding")
                     classContent.append("\n\t\t\tresult.add($name)")
-                    method.append("\n\t\t\t\t${viewDataBinding}.set${key.capitalize()}($name)")
+                    method.append("\n\t\t\t\t${viewDataBinding}.${key} = $name")
+
+                    extension.add("var ${variableName}.$propertyName: $qualifiedName" +
+                            "\n\tget() {" +
+                            "\n\t\treturn cast(caches[\"${qualifiedName.uncapitalize()}\"])" +
+                            "\n\t}" +
+                            "\n\tset(value) {" +
+                            "\n\t\tcaches[\"${qualifiedName.uncapitalize()}\"] = value" +
+                            "\n\t}"
+                    )
                 }
                 classContent.append("\n\t\t\treturn {")
                 classContent.append(method.toString())
                 classContent.append("\n\t\t\t\tresult")
                 classContent.append("\n\t\t\t}")
                 classContent.append("\n\t\t}")
+
             }
             classContent.append("\n\t\treturn { listOf() }")
             classContent.append("\n\t}")
             classContent.append("\n}")
+            extension.each {
+                classContent.append("\n")
+                classContent.append(it)
+            }
+
             classFile.write(classContent.toString())
         }
     }
@@ -87,16 +135,6 @@ class DataBindingBean {
     String qualifiedName
     String packageName
     Map<String, String> variables
-
-    @Override
-    String toString() {
-        return "DataBindingBean{" +
-                "layoutName='" + layoutName + '\'' +
-                ", qualifiedName='" + qualifiedName + '\'' +
-                ", packageName='" + packageName + '\'' +
-                ", variables=" + variables +
-                '}';
-    }
 }
 
 buildscript {

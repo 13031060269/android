@@ -9,7 +9,7 @@ import com.lwp.lib.utils.CoroutineUtils
 import com.lwp.lib.utils.SUCCESS
 import com.lwp.lib.utils.fromJson
 
-open class BaseViewModel<T> : LwpViewModel<T>() {
+abstract class BaseViewModel<T> : LwpViewModel<T>() {
     inline fun <reified D> load(
         requestBody: LwpRequestBody,
         crossinline success: (D?) -> Unit,

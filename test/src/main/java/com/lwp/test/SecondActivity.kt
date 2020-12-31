@@ -1,13 +1,18 @@
 package com.lwp.test
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Bundle
-import kotlinx.android.synthetic.main.activity_second.*
+import androidx.appcompat.app.AppCompatActivity
+import com.lwp.test.databinding.ComLwpTestActivitySecondBinding
 
-open class SecondActivity : AppCompatActivity() {
+open class SecondActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_second)
-        btn.setOnClickListener { finish() }
+        ComLwpTestActivitySecondBinding.inflate(layoutInflater).apply {
+            setContentView(root)
+            btn.setOnClickListener { finish() }
+        }
     }
 }

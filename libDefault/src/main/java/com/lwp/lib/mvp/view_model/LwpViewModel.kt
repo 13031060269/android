@@ -6,14 +6,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.lwp.lib.mvp.interfaces.UiInterface
+import com.lwp.lib.utils.generality
 
-open class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
+abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
     val model: T by lazy { initModel() }
-
-    open fun initModel(): T = throw RuntimeException("如果要使用model请重写initModel方法！！")
+    val caches = HashMap<String, Any>()
+    open fun initModel(): T = generality()
     private var mBase: LwpViewModel<*>? = null
     open fun context(): Context? = mBase?.context()
-    lateinit var flushSelf: () -> Unit
+    private lateinit var flushSelf: () -> Unit
     var lifecycle: Lifecycle? = null
     fun attach(mBase: LwpViewModel<*>, lifecycle: Lifecycle, _flush: () -> Unit = {}) {
         this.mBase = mBase
@@ -30,6 +31,7 @@ open class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
         mBase = null
         lifecycle?.removeObserver(this)
         lifecycle = null
+        caches.clear()
     }
 
     override fun showLoading(text: String) {
@@ -53,6 +55,8 @@ open class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
     }
 
     override fun reload() {
+        showLoading()
+        onCreate()
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {

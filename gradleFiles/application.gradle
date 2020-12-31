@@ -58,7 +58,7 @@ afterEvaluate {
             clearEmpty(cache)
             aar.delete()
             String path = "${cacheDir}/classes"
-            "jar  -cf ${path}.jar -C ${path} /".execute().waitFor()
+//            "jar  -cf ${path}.jar -C ${path} /".execute().waitFor()
             file(path).deleteDir()
             "jar  -cf ${aar.absolutePath} -C $cacheDir /".execute().waitFor()
         }
@@ -103,6 +103,9 @@ afterEvaluate {
         }
 
         tasks.findByName("minifyReleaseWithR8")?.doLast {
+            outputs.files.files.each {
+                println it
+            }
             copy {
                 from outputs.files.files
                 include "**/*.txt"

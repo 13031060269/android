@@ -2,6 +2,7 @@ package com.lwp.app
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -10,8 +11,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.lwp.lib.BaseActivity
 import com.lwp.lib.BaseFragment
+import com.lwp.lib.dataBinding
 import com.lwp.lib.host.HostManager
-import com.lwp.lib.mvp.view_model.BaseViewModel
+import com.lwp.lib.mvp.view_model.BaseLiveDataViewModel
 
 open class MainActivity : BaseActivity() {
 
@@ -37,10 +39,20 @@ open class MainActivity : BaseActivity() {
     override fun getLayoutId(): Int = R.layout.activity_main
 }
 
-class MainViewModel : BaseViewModel<String>() {
-    override fun initModel(): String {
-        return "122222222"
+class MainModel {
+    var live = "222222222"
+
+}
+
+class MainViewModel : BaseLiveDataViewModel<MainModel>() {
+
+    fun haha(context: Context) {
+        setState {
+            live = "44444444444"
+        }
     }
+
+
     override fun onClick(view: View) {
         println("111111111111111>>onClick")
         when (view.id) {
