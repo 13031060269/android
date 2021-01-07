@@ -1,89 +1,62 @@
 package com.lwp.lib.mvp.interfaces
 
-import android.view.ViewGroup
-import android.view.ViewStub
-import androidx.core.view.children
-import androidx.databinding.DataBindingUtil
+import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
+import androidx.databinding.ViewStubProxy
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import com.lwp.lib.BR
-import com.lwp.lib.DataBindingHelper
-import com.lwp.lib.R
+import com.lwp.lib.databinding.LibLwpActivityBaseBinding
+import com.lwp.lib.mvp.mapper.VariableFactory.Companion.variableMapper
 import com.lwp.lib.mvp.view_model.LwpViewModel
 import com.lwp.lib.mvp.view_model.UIViewModel
 import com.lwp.lib.utils.cast
+import com.lwp.lib.utils.clearVar
+import com.lwp.lib.utils.getVar
+import com.lwp.lib.utils.saveVar
 
-interface GainLayout<T> : Factory where T : LifecycleOwner, T : ViewModelStoreOwner {
-    val that: T
-        get() = cast(this)
+internal interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
+
     val list: ArrayList<ViewDataBinding>
-        get() = ArrayList()
+        get() = getVar() ?: synchronized(this) {
+            val arrayList = ArrayList<ViewDataBinding>()
+            saveVar(arrayList)
+            arrayList
+        }
+
     val provider: ViewModelProvider
-        get() = ViewModelProvider(that)
     val uIViewModel: UIViewModel
         get() = provider.get(UIViewModel::class.java)
 
-    companion object {
-        val help = DataBindingHelper()
-    }
-
-    override fun <T> create(clazz: Class<T>): T {
-        if (ViewModel::class.java.isAssignableFrom(clazz)) {
-            return cast(provider.get(clazz.asSubclass(ViewModel::class.java)))
+    override fun <T : LwpViewModel<*>> create(clazz: Class<T>): T? {
+        return cast<T>(provider.get(clazz.asSubclass(ViewModel::class.java))).apply {
+            attach(uIViewModel, this@GainLayout.lifecycle)
         }
-        return clazz.newInstance()
     }
 
+    @LayoutRes
     fun getLayoutId(): Int
-    fun onBind(viewDataBinding: ViewDataBinding, viewStub: ViewStub?) {
+    fun onBind(viewDataBinding: ViewDataBinding, viewStubProxy: ViewStubProxy?) {
         uIViewModel.mContext = viewDataBinding.root.context
+        viewDataBinding.lifecycleOwner = this
         list.add(viewDataBinding)
-        viewDataBinding.setVariable(BR.data, uIViewModel)
-        (viewStub ?: viewDataBinding.root.findViewById(R.id.view_stub))?.apply {
-            layoutResource = getLayoutId()
-            inflate(this)
-        }
+        inflateViewStubProxy(viewStubProxy, getLayoutId())
     }
 
-    fun bind(
-        viewDataBinding: ViewDataBinding?,
-    ) = viewDataBinding?.apply {
-        list.add(this)
-        lifecycleOwner = that
-        help.attach(this, this@GainLayout).apply {
-            invoke().forEach {
-                if (it is LwpViewModel<*>) {
-                    it.attach(uIViewModel, that.lifecycle) {
-                        invoke()
-                    }
+    fun inflateViewStubProxy(viewStubProxy: ViewStubProxy?, @LayoutRes layoutId: Int = 0) {
+        viewStubProxy?.apply {
+            setOnInflateListener { _, _ ->
+                binding?.apply {
+                    lifecycleOwner = this@GainLayout
+                    variableMapper.attachToDataBinding(this, this@GainLayout)
                 }
             }
-        }
-        forEachViewStub(root as ViewGroup)
-    }
-
-    private fun forEachViewStub(viewGroup: ViewGroup) {
-        viewGroup.children.forEach {
-            if (it is ViewGroup) {
-                forEachViewStub(it)
-            } else if (it is ViewStub) {
-                inflate(it)
-            }
-        }
-    }
-
-    fun inflate(viewStub: ViewStub) {
-        viewStub.apply {
-            if (layoutResource != 0) {
-                inflate()?.apply {
-                    try {
-                        bind(DataBindingUtil.bind(this))
-                    } catch (e: Exception) {
-                    }
+            viewStub?.apply {
+                if (layoutId != 0) {
+                    layoutResource = layoutId
                 }
+                inflate()
             }
         }
     }
@@ -92,11 +65,12 @@ interface GainLayout<T> : Factory where T : LifecycleOwner, T : ViewModelStoreOw
         list.forEach {
             it.unbind()
         }
-
+        clearVar()
     }
 }
 
-fun ViewDataBinding?.onBind(gainLayout: GainLayout<*>, viewStub: ViewStub? = null) = this?.run {
-    gainLayout.onBind(this, viewStub)
-    root
-}
+internal fun LibLwpActivityBaseBinding.onBind(gainLayout: GainLayout) =
+    this.apply {
+        gainLayout.onBind(this, viewStub)
+        data = gainLayout.uIViewModel
+    }

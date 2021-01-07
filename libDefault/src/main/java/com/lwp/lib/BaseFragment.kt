@@ -7,22 +7,19 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.lwp.lib.databinding.LibLwpActivityBaseBinding
 import com.lwp.lib.mvp.interfaces.GainLayout
 import com.lwp.lib.mvp.interfaces.onBind
 
-abstract class BaseFragment : Fragment(), GainLayout<BaseFragment> {
-
+abstract class BaseFragment : Fragment(), GainLayout {
+    override val provider: ViewModelProvider by lazy { ViewModelProvider(this) }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return DataBindingUtil.inflate<ViewDataBinding>(
-            inflater,
-            R.layout.lib_lwp_activity_base,
-            container,
-            false
-        ).onBind(this)
+        return LibLwpActivityBaseBinding.inflate(inflater).onBind(this).root
     }
 
     override fun onDestroyView() {

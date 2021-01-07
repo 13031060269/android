@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply from: '../gradleFiles/application.gradle'
+apply from: '../gradleFiles/upload-auto.gradle'
 android {
     compileSdkVersion compileVersion
     buildToolsVersion "29.0.3"
@@ -18,27 +18,16 @@ android {
         jvmTarget = "1.8"
     }
 
+    sourceSets {
+        main.java {
+            exclude '**/*.java'  // 不想包含文件的路径
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-afterEvaluate {
-    for (variant in android.libraryVariants) {
-        def varName = variant.name
-        def taskFix = varName.capitalize()
-        tasks.findByName("compile${taskFix}Kotlin")?.doLast {
-            outputs.files.files.each { file ->
-                if (file.isDirectory()) {
-                    fileTree(new File(file, "com/lwp/lib")).each {
-                        if (it.name.startsWith("DataBindingHelper")) {
-                            it.delete()
-                        }
-                    }
-                }
-            }
         }
     }
 }
@@ -65,4 +54,5 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
+    compileOnly 'com.lwp:soft:1.0.0'
 }

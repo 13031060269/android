@@ -9,18 +9,18 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.lwp.lib.BaseActivity
 import com.lwp.lib.BaseFragment
-import com.lwp.lib.dataBinding
 import com.lwp.lib.host.HostManager
 import com.lwp.lib.mvp.view_model.BaseLiveDataViewModel
+import com.lwp.lib.mvp.view_model.BaseViewModel
+import kotlinx.coroutines.delay
 
 open class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val conte = application as APP
-        conte.applicationInfo
         when (PackageManager.PERMISSION_GRANTED) {
             ContextCompat.checkSelfPermission(
                 this,
@@ -45,16 +45,21 @@ class MainModel {
 }
 
 class MainViewModel : BaseLiveDataViewModel<MainModel>() {
-
     fun haha(context: Context) {
         setState {
-            live = "44444444444"
+            live="1111"
         }
+//        onUI {
+//            showLoading()
+//            onIo {
+//                delay(2000)
+//            }
+//            dismissLoading()
+//        }
     }
 
 
     override fun onClick(view: View) {
-        println("111111111111111>>onClick")
         when (view.id) {
             R.id.btn -> {
                 showLoading()
@@ -64,6 +69,9 @@ class MainViewModel : BaseLiveDataViewModel<MainModel>() {
                         HostManager.install("/sdcard/test.apk"),
                         context() as Activity
                     )
+                    onUi {
+                        dismissLoading()
+                    }
                 }
             }
         }
@@ -88,7 +96,4 @@ class MainViewModel : BaseLiveDataViewModel<MainModel>() {
 
 class MainFragment : BaseFragment() {
     override fun getLayoutId(): Int = R.layout.fragment_main
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-    }
 }

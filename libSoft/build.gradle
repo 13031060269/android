@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
+apply from: '../gradleFiles/upload-auto.gradle'
 android {
     compileSdkVersion compileVersion
     buildToolsVersion "29.0.3"
@@ -9,7 +9,7 @@ android {
         minSdkVersion minVersion
         targetSdkVersion targetVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         multiDexEnabled true
     }
     buildTypes {

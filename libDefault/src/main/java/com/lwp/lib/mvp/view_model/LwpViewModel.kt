@@ -6,32 +6,33 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.lwp.lib.mvp.interfaces.UiInterface
+import com.lwp.lib.utils.clearVar
 import com.lwp.lib.utils.generality
+
 
 abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
     val model: T by lazy { initModel() }
-    val caches = HashMap<String, Any>()
+    lateinit var functionFlush: () -> Unit
     open fun initModel(): T = generality()
     private var mBase: LwpViewModel<*>? = null
     open fun context(): Context? = mBase?.context()
-    private lateinit var flushSelf: () -> Unit
     var lifecycle: Lifecycle? = null
-    fun attach(mBase: LwpViewModel<*>, lifecycle: Lifecycle, _flush: () -> Unit = {}) {
+    fun attach(mBase: LwpViewModel<*>, lifecycle: Lifecycle) {
+        if (this.mBase != null) return
         this.mBase = mBase
         this.lifecycle = lifecycle
         lifecycle.addObserver(this)
-        this.flushSelf = _flush
     }
 
     fun flush() {
-        flushSelf()
+        functionFlush()
     }
 
     override fun onCleared() {
         mBase = null
         lifecycle?.removeObserver(this)
         lifecycle = null
-        caches.clear()
+        clearVar()
     }
 
     override fun showLoading(text: String) {
@@ -55,9 +56,13 @@ abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserve
     }
 
     override fun reload() {
-        showLoading()
-        onCreate()
+        load()
     }
+
+    open fun load() {
+
+    }
+
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
@@ -85,6 +90,7 @@ abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserve
     }
 
     open fun onCreate() {
+        load()
     }
 
     open fun onStart() {

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply from: '../gradleFiles/application.gradle'
+apply from: '../gradleFiles/upload-auto.gradle'
 apply from: '../gradleFiles/databinding-auto.gradle'
 android {
     compileSdkVersion compileVersion
@@ -19,9 +19,9 @@ android {
     }
     buildTypes {
         debug {
-            minifyEnabled true
-            zipAlignEnabled true
-            shrinkResources true
+//            minifyEnabled true
+//            zipAlignEnabled true
+//            shrinkResources true
         }
         release {
             minifyEnabled true
@@ -41,12 +41,13 @@ android {
 
     dependencies {
         implementation fileTree(dir: 'libs', include: ['*.jar'])
+        implementation 'com.google.android.material:material:1.2.1'
+        implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-        implementation 'com.lwp:lib:1.0.0'
+//        implementation 'com.lwp:lib:1.0.0'
         implementation "com.lwp.lib:host:1.0.0"
-//        implementation project(':libDefault')
+        implementation project(':libDefault')
 //        implementation project(':libHost')
-        implementation 'androidx.multidex:multidex:2.0.1'
 //    implementation 'com.android.tools.build:gradle:4.1.1'
 //    implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }

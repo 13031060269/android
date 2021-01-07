@@ -1,5 +1,9 @@
 package com.lwp.lib.mvp.interfaces
 
+import com.lwp.lib.mvp.view_model.LwpViewModel
+
 interface Factory {
-    fun <C> create(clazz: Class<C>): C?
+    fun <T : LwpViewModel<*>> create(clazz: Class<T>): T?
 }
+
+inline fun <reified T : LwpViewModel<*>> Factory.create(): T? = create(T::class.java)

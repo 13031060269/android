@@ -1,140 +1,155 @@
 import org.json.JSONObject
 
+String path = file("build/source").absolutePath
 boolean isApp = project.getPlugins().hasPlugin("com.android.application")
 afterEvaluate {
     if (!isApp) {
         return
     }
-
-
     android.applicationVariants.each { variant ->
         String varName = variant.name
         String taskFix = varName.capitalize()
-        tasks.findByName("compile${taskFix}Kotlin")?.doLast {
-            classpath.each { File file ->
-                if (file.isFile()) {
-                    copy {
-                        from zipTree(file)
-                        into buildDir.absolutePath + "/classes"
+        String variantPath = path + "/" + taskFix
+        String classesFile = file("build/generated/source/buildConfig/$varName").absolutePath
+        File binding_classes = file("${variantPath}/binding_classes.json")
+        binding_classes.parentFile.mkdirs()
+        String className = "com.lwp.lib.mvp.mapper.VariableFactoryImpl"
+        Map<String, Set<ClassNameBean>> viewModelMap = new HashMap<>()
+        Task dataBindingJson2Class = tasks.create("dataBindingJson2Class${taskFix}") {
+            doLast {
+                if (!binding_classes.exists()) return
+                File classFile = new File(classesFile + "/${className.replace(".", "/")}.kt")
+                List<DataBindingBean> listBean = new ArrayList<>()
+                classFile.parentFile.mkdirs()
+                JSONObject jsonObject = new JSONObject(binding_classes.text)
+                jsonObject = jsonObject.getJSONObject("mappings")
+                jsonObject.keys().each { key ->
+                    JSONObject json = jsonObject.getJSONObject(key)
+                    Map<String, ClassNameBean> variables = new HashMap<>()
+                    String parent = json.getString("qualified_name")
+                    json.getJSONObject("variables").toMap().each { mKey, value ->
+                        if (value.endsWith("ViewModel")) {
+                            ClassNameBean nameBean = ClassNameBean.parse(value)
+                            variables.put(mKey, nameBean)
+                        }
                     }
-                } else {
-                    copy {
-                        from fileTree(file)
-                        into buildDir.absolutePath + "/classes"
+                    if (variables.size() > 0) {
+                        json.getJSONArray("implementations").each { JSONObject obj ->
+                            DataBindingBean bindingBean = new DataBindingBean()
+                            bindingBean.variables = variables
+                            bindingBean.qualifiedName = ClassNameBean.parse(obj.getString("qualified_name"), parent)
+                            listBean.add(bindingBean)
+                            bindingBean.variables.each { k, variable ->
+                                Set<ClassNameBean> set = viewModelMap.get(variable.name)
+                                if (set == null) {
+                                    set = new HashSet<>()
+                                    viewModelMap.put(variable.name, set)
+                                }
+                                set.add(bindingBean.qualifiedName)
+                            }
+                        }
+                    }
+
+                }
+                classFile.write("package ${className.substring(0, className.lastIndexOf("."))}\n")
+                classFile.append("class ${className.substring(className.lastIndexOf(".") + 1)} : VariableFactory(){\n")
+                classFile.append("\tinit{\n")
+                viewModelMap.each { clazz, value ->
+                    ClassNameBean classBean = ClassNameBean.parse(clazz)
+                    File file = new File(classesFile + "/${classBean.name.replace(".", "/")}Bindings.kt")
+                    file.parentFile.mkdirs()
+                    file.write("package ${classBean.packageName}\n")
+                    file.append("import ${classBean.name}\n")
+                    value.each { classNameBean ->
+                        file.append("import ${classNameBean.name}\n")
+                    }
+                    file.append("import com.lwp.lib.utils.getVar\n")
+                    file.append("import com.lwp.lib.utils.saveVar\n")
+                    file.append("import com.lwp.lib.utils.cast\n")
+                    value.each { name ->
+                        file.append("\n")
+                        file.append("var ${classBean.simpleName}.binding${name.parent.simpleName}:${name.parent.name}\n")
+                        file.append("\tget() = cast(getVar(${name.simpleName}::class.java))\n")
+                        file.append("\tset(value) = saveVar(value)\n")
                     }
                 }
+                listBean.each { dataBindingBean ->
+                    ClassNameBean qualifiedName = dataBindingBean.qualifiedName
+                    File qualifiedFile = new File(classesFile + "/${qualifiedName.name.replace(".", "/")}Mapper.kt")
+                    qualifiedFile.parentFile.mkdirs()
+                    qualifiedFile.write("package ${qualifiedName.packageName}\n")
+                    qualifiedFile.append("import com.lwp.lib.mvp.mapper.VariableMapper\n")
+                    qualifiedFile.append("import com.lwp.lib.mvp.interfaces.Factory\n")
+                    qualifiedFile.append("import com.lwp.lib.utils.cast\n")
+                    dataBindingBean.variables.each { _, value ->
+                        qualifiedFile.append("import ${value.name}\n")
+                        qualifiedFile.append("import ${value.packageName}.binding${qualifiedName.parent.simpleName}\n")
+                    }
+                    qualifiedFile.append("class ${qualifiedName.simpleName}Mapper : VariableMapper<${qualifiedName.simpleName}>{\n")
+                    qualifiedFile.append("\toverride fun attachToDataBinding(container: ${qualifiedName.simpleName}, factory: Factory) {\n")
+                    dataBindingBean.variables.each { key, value ->
+                        String valueName = value.simpleName.uncapitalize()
+                        qualifiedFile.append("\t\tfactory.create(${value.simpleName}::class.java)?.apply {\n")
+                        qualifiedFile.append("\t\t\tfunctionFlush = {\n")
+                        qualifiedFile.append("\t\t\t\tcontainer.$key = this\n")
+                        qualifiedFile.append("\t\t\t}\n")
+                        qualifiedFile.append("\t\t\tflush()\n")
+                        qualifiedFile.append("\t\t\tbinding${qualifiedName.parent.simpleName} = cast(container)\n")
+                        qualifiedFile.append("\t\t}\n")
+                    }
+                    qualifiedFile.append("\t}\n")
+                    qualifiedFile.append("}\n")
+                    classFile.append("\t\taddMapper(${qualifiedName.name}Mapper())\n")
+                }
+                classFile.append("\t}\n")
+                classFile.append("}\n")
             }
         }
-
-        tasks.findByName("dataBindingGenBaseClasses${varName.capitalize()}")?.doLast {
-            String className = "DataBindingHelper"
-            File classFile = new File(android.sourceSets.main.java.srcDirs.first().toString() + "/com/lwp/lib/${className}.kt")
-            File artifactFile = null
-            outputs.files.files.each {
-                if (it.absolutePath.contains("data_binding_base_class_log_artifact")) {
-                    artifactFile = it.listFiles().first()
+        Task dataBindingGenBaseClasses = tasks.findByName("dataBindingGenBaseClasses${varName.capitalize()}")
+        dataBindingGenBaseClasses.finalizedBy dataBindingJson2Class
+        dataBindingGenBaseClasses?.doLast {
+            outputs.files.files.each { f ->
+                if (f.absolutePath.contains("data_binding_base_class_log_artifact")) {
+                    binding_classes.write(f.listFiles().first().text)
                 }
             }
-            List<DataBindingBean> listBean = new ArrayList<>()
-            Set<String> imports = new HashSet<>()
-            classFile.parentFile.mkdirs()
-            println classFile
-            JSONObject jsonObject = new JSONObject(artifactFile.text)
-            jsonObject = jsonObject.getJSONObject("mappings")
-            jsonObject.keys().each { key ->
-                JSONObject obj = jsonObject.getJSONObject(key)
-                DataBindingBean bean = new DataBindingBean()
-                bean.packageName = obj.getString("module_package")
-                bean.layoutName = key
-                bean.qualifiedName = obj.getString("qualified_name")
-                imports.add(bean.qualifiedName)
-                Map<String, String> variables = new HashMap<>()
-                obj = obj.getJSONObject("variables")
-                obj?.keys()?.each {
-                    variables.put(it, obj.getString(it))
-                    imports.add(obj.getString(it))
-                }
-                bean.variables = variables
-                if (variables.size() > 0) {
-                    listBean.add(bean)
-                }
-            }
-            String viewDataBinding = "viewDataBinding"
-            StringBuilder classContent = new StringBuilder()
-            classContent.append("package com.lwp.lib")
-            classContent.append("\n")
-            imports.each {
-                classContent.append("\nimport $it")
-            }
-            classContent.append("\nimport androidx.databinding.ViewDataBinding")
-            classContent.append("\n")
-            classContent.append("\nimport com.lwp.lib.utils.*")
-            classContent.append("\n")
-            classContent.append("\nimport com.lwp.lib.mvp.interfaces.Factory")
-            classContent.append("\n")
-            classContent.append("\nclass ${className} {")
-            classContent.append("\n")
-            classContent.append("\n\tfun attach($viewDataBinding:ViewDataBinding ,factory: Factory): () -> List<Any?>{")
-
-            List<String> extension = new ArrayList<>()
-            Set<String> dataBindingSet = new HashSet<>()
-            listBean.each {
-                String qualifiedName = it.qualifiedName.substring(it.qualifiedName.lastIndexOf(".") + 1)
-                classContent.append("\n\t\tif ($viewDataBinding is $qualifiedName){")
-                classContent.append("\n\t\t\tval result=mutableListOf<Any?>()")
-                StringBuilder method = new StringBuilder()
-                it.variables.each { key, value ->
-                    String variableName = value.substring(value.lastIndexOf(".") + 1)
-                    String name = variableName.uncapitalize()
-                    classContent.append("\n\t\t\tval $name=factory.create(${variableName}::class.java)")
-
-                    String propertyName = "dataBinding"
-                    int index = 0
-                    String set = "$variableName.$propertyName"
-                    while (dataBindingSet.contains(set)) {
-                        index++
-                        propertyName = "dataBinding$index"
-                        set = "$variableName.$propertyName"
-                    }
-                    dataBindingSet.add(set)
-                    classContent.append("\n\t\t\t${name}?.$propertyName = $viewDataBinding")
-                    classContent.append("\n\t\t\tresult.add($name)")
-                    method.append("\n\t\t\t\t${viewDataBinding}.${key} = $name")
-
-                    extension.add("var ${variableName}.$propertyName: $qualifiedName" +
-                            "\n\tget() {" +
-                            "\n\t\treturn cast(caches[\"${qualifiedName.uncapitalize()}\"])" +
-                            "\n\t}" +
-                            "\n\tset(value) {" +
-                            "\n\t\tcaches[\"${qualifiedName.uncapitalize()}\"] = value" +
-                            "\n\t}"
-                    )
-                }
-                classContent.append("\n\t\t\treturn {")
-                classContent.append(method.toString())
-                classContent.append("\n\t\t\t\tresult")
-                classContent.append("\n\t\t\t}")
-                classContent.append("\n\t\t}")
-
-            }
-            classContent.append("\n\t\treturn { listOf() }")
-            classContent.append("\n\t}")
-            classContent.append("\n}")
-            extension.each {
-                classContent.append("\n")
-                classContent.append(it)
-            }
-
-            classFile.write(classContent.toString())
         }
     }
 }
 
 class DataBindingBean {
-    String layoutName
-    String qualifiedName
+    String layoutName//layout的名称
+    ClassNameBean qualifiedName//databing的名字
+    Map<String, ClassNameBean> variables//属性的map
+}
+
+class ClassNameBean {
+    String simpleName
     String packageName
-    Map<String, String> variables
+    ClassNameBean parent
+    String name
+
+    private ClassNameBean(String clazzName, String parent) {
+        this.parent = parse(parent)
+        name = clazzName
+        int index = clazzName.lastIndexOf(".")
+        packageName = clazzName.substring(0, index)
+        simpleName = clazzName.substring(index + 1)
+    }
+
+    static ClassNameBean parse(String clazzName, String parent) {
+        if (clazzName == null) return null
+        return new ClassNameBean(clazzName, parent)
+    }
+
+    static ClassNameBean parse(String clazzName) {
+        return parse(clazzName, null)
+    }
+
+    @Override
+    boolean equals(Object o) {
+        return o instanceof ClassNameBean && o.name == name
+    }
 }
 
 buildscript {
