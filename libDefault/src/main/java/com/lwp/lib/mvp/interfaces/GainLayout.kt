@@ -30,8 +30,12 @@ internal interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
         get() = provider.get(UIViewModel::class.java)
 
     override fun <T : LwpViewModel<*>> create(clazz: Class<T>): T? {
-        return cast<T>(provider.get(clazz.asSubclass(ViewModel::class.java))).apply {
-            attach(uIViewModel, this@GainLayout.lifecycle)
+        return try {
+            cast<T>(provider.get(clazz.asSubclass(ViewModel::class.java))).apply {
+                attach(uIViewModel, this@GainLayout.lifecycle)
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
