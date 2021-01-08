@@ -1,0 +1,12 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
+    implementation 'com.google.auto.service:auto-service:1.0-rc7'
+    implementation 'com.squareup:javapoet:1.10.0'
+    implementation project(":annotation")
+}

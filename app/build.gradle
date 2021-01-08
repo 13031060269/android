@@ -30,15 +30,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
     dependencies {
         implementation fileTree(dir: 'libs', include: ['*.jar'])
         implementation 'com.google.android.material:material:1.2.1'
@@ -47,8 +38,17 @@ android {
 //        implementation 'com.lwp:lib:1.0.0'
         implementation "com.lwp.lib:host:1.0.0"
         implementation project(':libDefault')
+        implementation project(':annotation')
+        kapt project(":compiler")
 //        implementation project(':libHost')
 //    implementation 'com.android.tools.build:gradle:4.1.1'
 //    implementation "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }

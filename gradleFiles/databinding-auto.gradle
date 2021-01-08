@@ -1,28 +1,46 @@
 import org.json.JSONObject
 
+class BindingExclude {
+    Set<String> exclude = []
+}
+
+extensions.create("bindingExclude", BindingExclude)
 String path = file("build/source").absolutePath
 boolean isApp = project.getPlugins().hasPlugin("com.android.application")
 afterEvaluate {
-    if (!isApp) {
+    def variants
+    if (isApp) {
+        variants = android.applicationVariants
+    } else if (project.getPlugins().hasPlugin("com.android.library")) {
+        variants = android.libraryVariants
+    } else {
         return
     }
-    android.applicationVariants.each { variant ->
+    String packageName = "package=\""
+    String content = file(android.sourceSets.main.manifest.toString()).text
+    int start = content.indexOf(packageName) + packageName.size()
+    packageName = content.substring(start, content.indexOf("\"", start))
+    variants.each { variant ->
         String varName = variant.name
         String taskFix = varName.capitalize()
         String variantPath = path + "/" + taskFix
         String classesFile = file("build/generated/source/buildConfig/$varName").absolutePath
         File binding_classes = file("${variantPath}/binding_classes.json")
         binding_classes.parentFile.mkdirs()
-        String className = "com.lwp.lib.mvp.mapper.VariableFactoryImpl"
+        String VariableFactoryImpl = "VariableFactoryImpl"
+        String className = packageName + "." + VariableFactoryImpl
         Map<String, Set<ClassNameBean>> viewModelMap = new HashMap<>()
         Task dataBindingJson2Class = tasks.create("dataBindingJson2Class${taskFix}") {
             doLast {
                 if (!binding_classes.exists()) return
-                File classFile = new File(classesFile + "/${className.replace(".", "/")}.kt")
+                File variableFactoryFile = new File(classesFile + "/${className.replace(".", "/")}.kt")
                 List<DataBindingBean> listBean = new ArrayList<>()
-                classFile.parentFile.mkdirs()
+                variableFactoryFile.parentFile.mkdirs()
                 JSONObject jsonObject = new JSONObject(binding_classes.text)
                 jsonObject = jsonObject.getJSONObject("mappings")
+                Set<String> packages = new HashSet<>()
+                Set<String> excludePackage = bindingExclude.exclude
+                println excludePackage
                 jsonObject.keys().each { key ->
                     JSONObject json = jsonObject.getJSONObject(key)
                     Map<String, ClassNameBean> variables = new HashMap<>()
@@ -36,8 +54,15 @@ afterEvaluate {
                     if (variables.size() > 0) {
                         json.getJSONArray("implementations").each { JSONObject obj ->
                             DataBindingBean bindingBean = new DataBindingBean()
+                            bindingBean.packageName = json.getString("module_package")
                             bindingBean.variables = variables
                             bindingBean.qualifiedName = ClassNameBean.parse(obj.getString("qualified_name"), parent)
+                            if (!excludePackage.contains(bindingBean.packageName)) {
+                                packages.add("${bindingBean.packageName}.$VariableFactoryImpl")
+                            } else {
+                                return
+                            }
+                            if (packageName != bindingBean.packageName) return
                             listBean.add(bindingBean)
                             bindingBean.variables.each { k, variable ->
                                 Set<ClassNameBean> set = viewModelMap.get(variable.name)
@@ -51,9 +76,10 @@ afterEvaluate {
                     }
 
                 }
-                classFile.write("package ${className.substring(0, className.lastIndexOf("."))}\n")
-                classFile.append("class ${className.substring(className.lastIndexOf(".") + 1)} : VariableFactory(){\n")
-                classFile.append("\tinit{\n")
+                variableFactoryFile.write("package ${className.substring(0, className.lastIndexOf("."))}\n")
+                variableFactoryFile.append("import com.lwp.lib.mvp.mapper.VariableFactory\n")
+                variableFactoryFile.append("class ${className.substring(className.lastIndexOf(".") + 1)} : VariableFactory(){\n")
+                variableFactoryFile.append("\tinit{\n")
                 viewModelMap.each { clazz, value ->
                     ClassNameBean classBean = ClassNameBean.parse(clazz)
                     File file = new File(classesFile + "/${classBean.name.replace(".", "/")}Bindings.kt")
@@ -75,6 +101,7 @@ afterEvaluate {
                 }
                 listBean.each { dataBindingBean ->
                     ClassNameBean qualifiedName = dataBindingBean.qualifiedName
+                    variableFactoryFile.append("\t\taddMapper(${qualifiedName.name}Mapper())\n")
                     File qualifiedFile = new File(classesFile + "/${qualifiedName.name.replace(".", "/")}Mapper.kt")
                     qualifiedFile.parentFile.mkdirs()
                     qualifiedFile.write("package ${qualifiedName.packageName}\n")
@@ -88,7 +115,6 @@ afterEvaluate {
                     qualifiedFile.append("class ${qualifiedName.simpleName}Mapper : VariableMapper<${qualifiedName.simpleName}>{\n")
                     qualifiedFile.append("\toverride fun attachToDataBinding(container: ${qualifiedName.simpleName}, factory: Factory) {\n")
                     dataBindingBean.variables.each { key, value ->
-                        String valueName = value.simpleName.uncapitalize()
                         qualifiedFile.append("\t\tfactory.create(${value.simpleName}::class.java)?.apply {\n")
                         qualifiedFile.append("\t\t\tfunctionFlush = {\n")
                         qualifiedFile.append("\t\t\t\tcontainer.$key = this\n")
@@ -99,10 +125,22 @@ afterEvaluate {
                     }
                     qualifiedFile.append("\t}\n")
                     qualifiedFile.append("}\n")
-                    classFile.append("\t\taddMapper(${qualifiedName.name}Mapper())\n")
                 }
-                classFile.append("\t}\n")
-                classFile.append("}\n")
+                variableFactoryFile.append("\t}\n")
+                variableFactoryFile.append("}\n")
+                if (isApp) {
+                    ClassNameBean impl = ClassNameBean.parse("com.lwp.lib.mvp.mapper.$VariableFactoryImpl")
+                    File classImplFile = new File(classesFile + "/${impl.name.replace(".", "/")}.kt")
+                    classImplFile.parentFile.mkdirs()
+                    classImplFile.write("package ${impl.packageName}\n")
+                    classImplFile.append("class ${impl.simpleName} : VariableFactory(){\n")
+                    classImplFile.append("\tinit {\n")
+                    packages.each {
+                        classImplFile.append("\t\t${it}()\n")
+                    }
+                    classImplFile.append("\t}\n")
+                    classImplFile.append("}\n")
+                }
             }
         }
         Task dataBindingGenBaseClasses = tasks.findByName("dataBindingGenBaseClasses${varName.capitalize()}")
@@ -119,6 +157,7 @@ afterEvaluate {
 
 class DataBindingBean {
     String layoutName//layout的名称
+    String packageName//layout的名称
     ClassNameBean qualifiedName//databing的名字
     Map<String, ClassNameBean> variables//属性的map
 }

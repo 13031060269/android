@@ -5,11 +5,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import com.lwp.annotation.Binding
 import com.lwp.lib.mvp.interfaces.UiInterface
 import com.lwp.lib.utils.clearVar
 import com.lwp.lib.utils.generality
 
-
+@Binding
 abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
     val model: T by lazy { initModel() }
     lateinit var functionFlush: () -> Unit

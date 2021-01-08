@@ -9,12 +9,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import com.lwp.lib.BaseActivity
 import com.lwp.lib.BaseFragment
 import com.lwp.lib.host.HostManager
 import com.lwp.lib.mvp.view_model.BaseLiveDataViewModel
-import com.lwp.lib.mvp.view_model.BaseViewModel
 import kotlinx.coroutines.delay
 
 open class MainActivity : BaseActivity() {

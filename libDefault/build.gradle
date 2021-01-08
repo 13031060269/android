@@ -2,6 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply from: '../gradleFiles/upload-auto.gradle'
+apply from: '../gradleFiles/databinding-auto.gradle'
 android {
     compileSdkVersion compileVersion
     buildToolsVersion "29.0.3"
@@ -30,6 +31,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -55,4 +60,5 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     compileOnly 'com.lwp:soft:1.0.0'
+    implementation project(":annotation")
 }

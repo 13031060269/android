@@ -77,4 +77,5 @@ internal fun LibLwpActivityBaseBinding.onBind(gainLayout: GainLayout) =
     this.apply {
         gainLayout.onBind(this, viewStub)
         data = gainLayout.uIViewModel
+
     }

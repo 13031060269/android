@@ -6,18 +6,19 @@ import com.lwp.lib.utils.cast
 import com.lwp.lib.utils.getValueByClass
 
 abstract class VariableFactory : VariableMapper<ViewDataBinding> {
-    private val maps = HashMap<Class<*>, VariableMapper<*>>()
     override fun attachToDataBinding(container: ViewDataBinding, factory: Factory) {
         getVariableMapper(container)?.attachToDataBinding(container, factory)
     }
 
     private inline fun <reified T : Any> getVariableMapper(container: T): VariableMapper<T>? {
-        return getValueByClass(maps,container::class.java)
+        return getValueByClass(maps, container::class.java)
     }
 
     companion object {
         @JvmStatic
         val variableMapper by lazy { VariableFactoryImpl() }
+        @JvmStatic
+        val maps = HashMap<Class<*>, VariableMapper<*>>()
     }
 
     inline fun <reified T : Any> addMapper(mapper: VariableMapper<T>) {

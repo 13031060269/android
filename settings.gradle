@@ -1,3 +1,5 @@
+include ':compiler'
+include ':annotation'
 include ':libDefault'
 include ':libHost'
 include ':app'

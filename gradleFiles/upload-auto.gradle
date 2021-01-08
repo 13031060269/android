@@ -4,7 +4,7 @@ class MakeApk2Aar {
 
 String cacheDir = buildDir.absolutePath + "/aar-cache"
 file(cacheDir).mkdirs()
-def ids = file("$cacheDir/ids.txt").absolutePath
+def ids = file("build/outputs/ids.txt").absolutePath
 android.aaptOptions {
     additionalParameters "--emit-ids", ids
     failOnMissingConfigEntry false
