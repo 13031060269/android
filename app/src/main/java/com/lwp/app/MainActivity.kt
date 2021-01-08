@@ -46,18 +46,23 @@ class MainModel {
 
 class MainViewModel : BaseLiveDataViewModel<MainModel>() {
     fun haha(context: Context) {
-        setState {
-            live="1111"
+        flush {
+            live = "1111"
         }
-//        onUI {
-//            showLoading()
-//            onIo {
-//                delay(2000)
-//            }
-//            dismissLoading()
-//        }
+        onUI {
+            showLoading()
+            onIo {
+                delay(2000)
+            }
+            dismissLoading()
+        }
     }
 
+    override fun onStop() {
+        flush {
+            live = "333"
+        }
+    }
 
     override fun onClick(view: View) {
         when (view.id) {

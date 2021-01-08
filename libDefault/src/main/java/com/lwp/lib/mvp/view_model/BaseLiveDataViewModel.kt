@@ -7,10 +7,11 @@ abstract class BaseLiveDataViewModel<T> : BaseViewModel<MutableLiveData<T>>() {
     final override fun initModel(): MutableLiveData<T> = MutableLiveData(value)
     val value: T by lazy { initValue() }
     open fun initValue(): T = generality()
-    fun setState(block: T.() -> Unit) {
+    fun flush(block: T.() -> Unit) {
         model.value?.apply {
             block()
             model.postValue(this)
         }
+        flush()
     }
 }
