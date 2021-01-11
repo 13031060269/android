@@ -39,12 +39,11 @@ open class MainActivity : BaseActivity() {
 
 class MainModel {
     var live = "222222222"
-
 }
 
 class MainViewModel : BaseLiveDataViewModel<MainModel>() {
     fun haha(context: Context) {
-        flush {
+        setState {
             live = "1111"
         }
         onUI {
@@ -57,7 +56,7 @@ class MainViewModel : BaseLiveDataViewModel<MainModel>() {
     }
 
     override fun onStop() {
-        flush {
+        setState {
             live = "333"
         }
     }
