@@ -62,6 +62,10 @@ interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
         }
     }
 
+    fun create() {
+
+    }
+
     fun unbind() {
         listBinding.forEach {
             it.unbind()
@@ -77,4 +81,5 @@ internal fun LibLwpActivityBaseBinding.onBind(gainLayout: GainLayout) =
         viewStub.viewStub?.layoutResource = gainLayout.getLayoutId()
         data = gainLayout.uIViewModel
         gainLayout.onBind(this, viewStub)
+        gainLayout.create()
     }
