@@ -17,7 +17,6 @@ internal interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
 
     val list: ArrayList<ViewDataBinding>
         get() = lazyVar { ArrayList() }
-
     val provider: ViewModelProvider
         get() = lazyVar { ViewModelProvider(this) }
     val uIViewModel: UIViewModel
