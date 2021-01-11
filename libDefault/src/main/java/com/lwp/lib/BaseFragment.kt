@@ -13,7 +13,6 @@ import com.lwp.lib.mvp.interfaces.GainLayout
 import com.lwp.lib.mvp.interfaces.onBind
 
 abstract class BaseFragment : Fragment(), GainLayout {
-    override val provider: ViewModelProvider by lazy { ViewModelProvider(this) }
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

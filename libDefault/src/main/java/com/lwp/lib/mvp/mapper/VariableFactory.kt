@@ -3,7 +3,6 @@ package com.lwp.lib.mvp.mapper
 import androidx.databinding.ViewDataBinding
 import com.lwp.lib.mvp.interfaces.Factory
 import com.lwp.lib.utils.cast
-import com.lwp.lib.utils.getValueByClass
 
 abstract class VariableFactory : VariableMapper<ViewDataBinding> {
     override fun attachToDataBinding(container: ViewDataBinding, factory: Factory) {
@@ -11,12 +10,13 @@ abstract class VariableFactory : VariableMapper<ViewDataBinding> {
     }
 
     private inline fun <reified T : Any> getVariableMapper(container: T): VariableMapper<T>? {
-        return getValueByClass(maps, container::class.java)
+        return cast(maps[container::class.java])
     }
 
     companion object {
         @JvmStatic
         val variableMapper by lazy { VariableFactoryImpl() }
+
         @JvmStatic
         val maps = HashMap<Class<*>, VariableMapper<*>>()
     }

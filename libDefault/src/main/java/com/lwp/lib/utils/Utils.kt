@@ -11,17 +11,6 @@ fun <T> cast(obj: Any?): T {
     return obj as T
 }
 
-inline fun <reified T : Any> getValueByClass(maps: Map<Class<*>, Any>, clazz: Class<*>): T {
-    var clazz: Class<*>? = clazz
-    var variableMapper: Any? = null
-    while (clazz != null && variableMapper == null) {
-        variableMapper = maps[clazz]
-        clazz = clazz.superclass
-    }
-    return cast(variableMapper)
-}
-
-
 inline fun <R, reified T : Any> T.generality(): R {
     var clazz: Class<*>? = this::class.java
     val stack = Stack<Class<*>>()

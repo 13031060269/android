@@ -12,6 +12,5 @@ abstract class BaseLiveDataViewModel<T> : BaseViewModel<MutableLiveData<T>>() {
             block()
             model.postValue(this)
         }
-        flush()
     }
 }

@@ -13,7 +13,6 @@ import com.lwp.lib.utils.generality
 @Binding
 abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
     val model: T by lazy { initModel() }
-    lateinit var functionFlush: () -> Unit
     open fun initModel(): T = generality()
     private var mBase: LwpViewModel<*>? = null
     open fun context(): Context? = mBase?.context()
@@ -23,10 +22,6 @@ abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserve
         this.mBase = mBase
         this.lifecycle = lifecycle
         lifecycle.addObserver(this)
-    }
-
-    fun flush() {
-        functionFlush()
     }
 
     override fun onCleared() {

@@ -40,7 +40,6 @@ afterEvaluate {
                 jsonObject = jsonObject.getJSONObject("mappings")
                 Set<String> packages = new HashSet<>()
                 Set<String> excludePackage = bindingExclude.exclude
-                println excludePackage
                 jsonObject.keys().each { key ->
                     JSONObject json = jsonObject.getJSONObject(key)
                     Map<String, ClassNameBean> variables = new HashMap<>()
@@ -116,10 +115,7 @@ afterEvaluate {
                     qualifiedFile.append("\toverride fun attachToDataBinding(container: ${qualifiedName.simpleName}, factory: Factory) {\n")
                     dataBindingBean.variables.each { key, value ->
                         qualifiedFile.append("\t\tfactory.create(${value.simpleName}::class.java)?.apply {\n")
-                        qualifiedFile.append("\t\t\tfunctionFlush = {\n")
-                        qualifiedFile.append("\t\t\t\tcontainer.$key = this\n")
-                        qualifiedFile.append("\t\t\t}\n")
-                        qualifiedFile.append("\t\t\tflush()\n")
+                        qualifiedFile.append("\t\t\tcontainer.$key = this\n")
                         qualifiedFile.append("\t\t\tbinding${qualifiedName.parent.simpleName} = cast(container)\n")
                         qualifiedFile.append("\t\t}\n")
                     }

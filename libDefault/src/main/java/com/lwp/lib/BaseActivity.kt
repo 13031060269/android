@@ -12,7 +12,6 @@ import com.lwp.lib.mvp.interfaces.onBind
 import com.lwp.lib.utils.ForResultHelper
 
 abstract class BaseActivity : AppCompatActivity(), GainLayout {
-    override val provider: ViewModelProvider by lazy { ViewModelProvider(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         LibLwpActivityBaseBinding.inflate(layoutInflater)

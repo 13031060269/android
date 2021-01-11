@@ -11,28 +11,24 @@ import com.lwp.lib.databinding.LibLwpActivityBaseBinding
 import com.lwp.lib.mvp.mapper.VariableFactory.Companion.variableMapper
 import com.lwp.lib.mvp.view_model.LwpViewModel
 import com.lwp.lib.mvp.view_model.UIViewModel
-import com.lwp.lib.utils.cast
-import com.lwp.lib.utils.clearVar
-import com.lwp.lib.utils.getVar
-import com.lwp.lib.utils.saveVar
+import com.lwp.lib.utils.*
 
 internal interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
 
     val list: ArrayList<ViewDataBinding>
-        get() = getVar() ?: synchronized(this) {
-            val arrayList = ArrayList<ViewDataBinding>()
-            saveVar(arrayList)
-            arrayList
-        }
+        get() = lazyVar { ArrayList() }
 
     val provider: ViewModelProvider
+        get() = lazyVar { ViewModelProvider(this) }
     val uIViewModel: UIViewModel
-        get() = provider.get(UIViewModel::class.java)
+        get() = lazyVar { provider.get(UIViewModel::class.java) }
 
-    override fun <T : LwpViewModel<*>> create(clazz: Class<T>): T? {
+    override fun <T> create(clazz: Class<T>): T? {
         return try {
             cast<T>(provider.get(clazz.asSubclass(ViewModel::class.java))).apply {
-                attach(uIViewModel, this@GainLayout.lifecycle)
+                if (this is LwpViewModel<*>) {
+                    attach(uIViewModel, this@GainLayout.lifecycle)
+                }
             }
         } catch (e: Exception) {
             null
@@ -45,13 +41,14 @@ internal interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
         uIViewModel.mContext = viewDataBinding.root.context
         viewDataBinding.lifecycleOwner = this
         list.add(viewDataBinding)
-        inflateViewStubProxy(viewStubProxy, getLayoutId())
+        interceptInflate(viewStubProxy, getLayoutId())
     }
 
-    fun inflateViewStubProxy(viewStubProxy: ViewStubProxy?, @LayoutRes layoutId: Int = 0) {
+    fun interceptInflate(viewStubProxy: ViewStubProxy?, @LayoutRes layoutId: Int = 0) {
         viewStubProxy?.apply {
             setOnInflateListener { _, _ ->
                 binding?.apply {
+                    list.add(this)
                     lifecycleOwner = this@GainLayout
                     variableMapper.attachToDataBinding(this, this@GainLayout)
                 }
@@ -68,7 +65,9 @@ internal interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
     fun unbind() {
         list.forEach {
             it.unbind()
+            it.clearVar()
         }
+        list.clear()
         clearVar()
     }
 }
@@ -77,5 +76,4 @@ internal fun LibLwpActivityBaseBinding.onBind(gainLayout: GainLayout) =
     this.apply {
         gainLayout.onBind(this, viewStub)
         data = gainLayout.uIViewModel
-
     }
