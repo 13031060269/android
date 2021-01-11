@@ -1,10 +1,8 @@
 package com.lwp.compiler
 
-import java.lang.StringBuilder
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.TypeElement
-import javax.tools.Diagnostic
 
 open class BaseProcess : AbstractProcessor() {
     override fun process(
