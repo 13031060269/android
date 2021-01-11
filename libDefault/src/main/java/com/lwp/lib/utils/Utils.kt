@@ -2,7 +2,7 @@ package com.lwp.lib.utils
 
 import com.lwp.lib.database.Cache
 import com.lwp.lib.database.cacheDao
-import com.lwp.lib.mvp.mapper.VariableMapper
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import java.util.*
 
@@ -24,7 +24,7 @@ inline fun <R, reified T : Any> T.generality(): R {
             val arguments = genericSuperclass.actualTypeArguments
             if (!arguments.isNullOrEmpty()) {
                 val type = arguments.last()
-                if (type is Class<*>) {
+                if (type is Class<*> && !Modifier.isAbstract(type.modifiers)) {
                     return cast(type.newInstance())
                 }
             }
