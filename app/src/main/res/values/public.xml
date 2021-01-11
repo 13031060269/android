@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<!--    <public id="0x7f01f010" type="color" />-->
+    <!--    <public id="0x7f01f010" type="color" />-->
     <public name="colorAccent" id="0x7f01f000" type="color" />
     <public name="colorPrimary" id="0x7f010001" type="color" />
     <public name="colorPrimaryDark" id="0x7f010002" type="color" />

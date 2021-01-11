@@ -10,6 +10,7 @@ class HostService : Service() {
         super.onCreate()
         HostManager.init(application)
     }
+
     override fun onBind(intent: Intent?): IBinder? {
         return HostBinder()
     }

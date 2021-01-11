@@ -6,12 +6,15 @@
         <variable
             name="data"
             type="com.lwp.app.MainViewModel" />
+
         <variable
             name="name"
             type="String" />
+
         <variable
             name="age"
             type="int" />
+
         <variable
             name="file"
             type="java.io.File" />
