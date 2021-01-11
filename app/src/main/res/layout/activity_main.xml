@@ -27,8 +27,7 @@
         <ImageView
             android:id="@+id/iv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_launcher_background" />
+            android:layout_height="match_parent" />
 
         <Button
             android:id="@+id/btn"
@@ -54,5 +53,12 @@
             android:layout_below="@+id/btn_2"
             android:layout_centerInParent="true"
             android:text="第三个" />
+
+        <fragment
+            android:layout_below="@+id/btn_3"
+            android:id="@+id/main_fragment"
+            android:name="com.lwp.app.MainFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </RelativeLayout>
 </layout>

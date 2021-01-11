@@ -9,10 +9,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.lwp.app.databinding.FragmentMainBinding
 import com.lwp.lib.BaseActivity
 import com.lwp.lib.BaseFragment
 import com.lwp.lib.host.HostManager
 import com.lwp.lib.mvp.view_model.BaseLiveDataViewModel
+import com.lwp.lib.utils.cast
 import kotlinx.coroutines.delay
 
 open class MainActivity : BaseActivity() {
@@ -98,4 +100,7 @@ class MainViewModel : BaseLiveDataViewModel<MainModel>() {
 
 class MainFragment : BaseFragment() {
     override fun getLayoutId(): Int = R.layout.fragment_main
+    override fun create() {
+        super.create()
+    }
 }

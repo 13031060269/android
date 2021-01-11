@@ -15,12 +15,15 @@ import com.lwp.lib.utils.*
 
 interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
 
-    private val listBinding: ArrayList<ViewDataBinding>
+    private val bindings: ArrayList<ViewDataBinding>
         get() = lazyVar { ArrayList() }
     private val provider: ViewModelProvider
         get() = lazyVar { ViewModelProvider(this) }
     val uIViewModel: UIViewModel
         get() = lazyVar { provider.get(UIViewModel::class.java) }
+//    fun <reified T> getViewBinding():T{
+//
+//    }
 
     override fun <T> create(clazz: Class<T>): T? {
         return try {
@@ -40,18 +43,17 @@ interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
 
     @LayoutRes
     fun getLayoutId(): Int
-    fun onBind(viewDataBinding: ViewDataBinding, viewStubProxy: ViewStubProxy?) {
+    fun onBind(viewDataBinding: ViewDataBinding) {
         uIViewModel.mContext = viewDataBinding.root.context
         viewDataBinding.lifecycleOwner = this
-        listBinding.add(viewDataBinding)
-        inflate(viewStubProxy)
+        bindings.add(viewDataBinding)
     }
 
-    fun inflate(viewStubProxy: ViewStubProxy?) {
-        viewStubProxy?.apply {
+    fun inflate(viewStubProxy: ViewStubProxy) {
+        viewStubProxy.apply {
             setOnInflateListener { _, _ ->
                 binding?.apply {
-                    listBinding.add(this)
+                    bindings.add(this)
                     lifecycleOwner = this@GainLayout
                     variableMapper.attachToDataBinding(this, this@GainLayout)
                 }
@@ -67,19 +69,22 @@ interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
     }
 
     fun unbind() {
-        listBinding.forEach {
+        bindings.forEach {
             it.unbind()
             it.clearVar()
         }
-        listBinding.clear()
+        bindings.clear()
         clearVar()
     }
 }
 
 internal fun LibLwpActivityBaseBinding.onBind(gainLayout: GainLayout) =
     this.apply {
-        viewStub.viewStub?.layoutResource = gainLayout.getLayoutId()
+        gainLayout.onBind(this)
+        viewStub.apply {
+            viewStub?.layoutResource = gainLayout.getLayoutId()
+            gainLayout.inflate(this)
+        }
         data = gainLayout.uIViewModel
-        gainLayout.onBind(this, viewStub)
         gainLayout.create()
     }

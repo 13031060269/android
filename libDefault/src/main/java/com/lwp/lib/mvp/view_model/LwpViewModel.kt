@@ -52,13 +52,31 @@ abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserve
     }
 
     override fun reload() {
-        load()
+        onLoad()
     }
 
-    open fun load() {
+    open fun onLoad() {
 
     }
 
+    open fun onCreate() {
+        onLoad()
+    }
+
+    open fun onStart() {
+    }
+
+    open fun onResume() {
+    }
+
+    open fun onPause() {
+    }
+
+    open fun onStop() {
+    }
+
+    open fun onDestroy() {
+    }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
@@ -83,24 +101,5 @@ abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserve
             Lifecycle.Event.ON_ANY -> {
             }
         }
-    }
-
-    open fun onCreate() {
-        load()
-    }
-
-    open fun onStart() {
-    }
-
-    open fun onResume() {
-    }
-
-    open fun onPause() {
-    }
-
-    open fun onStop() {
-    }
-
-    open fun onDestroy() {
     }
 }

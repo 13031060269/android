@@ -4,14 +4,19 @@ import java.util.*
 import kotlin.collections.HashMap
 
 private val variables: WeakHashMap<Any, HashMap<Class<*>, Any>> by lazy { WeakHashMap() }
-fun <T : Any, R : Any> T.saveVar(variable: R) {
+fun <T : Any, R : Any> T.saveVar(variable: R, clazz: Class<R>) {
     var vars = variables[this]
     if (vars == null) {
         vars = HashMap()
         variables[this] = vars
     }
-    vars[variable::class.java] = variable
+    vars[clazz] = variable
 }
+
+inline fun <T : Any, reified R : Any> T.saveVar(variable: R) {
+    saveVar(variable, R::class.java)
+}
+
 
 inline fun <T : Any, reified R : Any> T.lazyVar(noinline initializer: () -> R): R {
     return lazyVar(initializer, R::class.java)
@@ -19,7 +24,7 @@ inline fun <T : Any, reified R : Any> T.lazyVar(noinline initializer: () -> R): 
 
 fun <T : Any, R : Any> T.lazyVar(initializer: () -> R, clazz: Class<R>): R {
     return getVar(clazz) ?: lazy(initializer).value.also {
-        saveVar(it)
+        saveVar(it, clazz)
     }
 }
 
