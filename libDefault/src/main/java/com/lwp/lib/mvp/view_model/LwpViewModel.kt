@@ -6,9 +6,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import com.lwp.annotation.Binding
+import com.lwp.lib.mvp.interfaces.GainLayout
 import com.lwp.lib.mvp.interfaces.UiInterface
 import com.lwp.lib.utils.clearVar
 import com.lwp.lib.utils.generality
+import com.lwp.lib.utils.getVar
+import com.lwp.lib.utils.saveVar
 
 @Binding
 abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserver {
@@ -16,18 +19,16 @@ abstract class LwpViewModel<T> : ViewModel(), UiInterface, LifecycleEventObserve
     open fun initModel(): T = generality()
     private var mBase: LwpViewModel<*>? = null
     open fun context(): Context? = mBase?.context()
-    var lifecycle: Lifecycle? = null
-    fun attach(mBase: LwpViewModel<*>, lifecycle: Lifecycle) {
+    fun attach(mBase: LwpViewModel<*>, gainLayout: GainLayout) {
         if (this.mBase != null) return
         this.mBase = mBase
-        this.lifecycle = lifecycle
-        lifecycle.addObserver(this)
+        gainLayout.lifecycle.addObserver(this)
+        saveVar(gainLayout)
     }
 
     override fun onCleared() {
         mBase = null
-        lifecycle?.removeObserver(this)
-        lifecycle = null
+        getVar(GainLayout::class.java)?.lifecycle?.removeObserver(this)
         clearVar()
     }
 

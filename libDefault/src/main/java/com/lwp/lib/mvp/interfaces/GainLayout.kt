@@ -15,22 +15,19 @@ import com.lwp.lib.utils.*
 
 interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
 
-    private val bindings: ArrayList<ViewDataBinding>
+    val bindings: ArrayList<ViewDataBinding>
         get() = lazyVar { ArrayList() }
     private val provider: ViewModelProvider
         get() = lazyVar { ViewModelProvider(this) }
     val uIViewModel: UIViewModel
         get() = lazyVar { provider.get(UIViewModel::class.java) }
-//    fun <reified T> getViewBinding():T{
-//
-//    }
 
     override fun <T> create(clazz: Class<T>): T? {
         return try {
             if (ViewModel::class.java.isAssignableFrom(clazz)) {
                 cast<T>(provider.get(clazz.asSubclass(ViewModel::class.java))).apply {
                     if (this is LwpViewModel<*>) {
-                        attach(uIViewModel, this@GainLayout.lifecycle)
+                        attach(uIViewModel, this@GainLayout)
                     }
                 }
             } else {
@@ -40,6 +37,7 @@ interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
             null
         }
     }
+
 
     @LayoutRes
     fun getLayoutId(): Int
@@ -76,6 +74,15 @@ interface GainLayout : Factory, LifecycleOwner, ViewModelStoreOwner {
         bindings.clear()
         clearVar()
     }
+}
+
+inline fun <reified T : ViewDataBinding> GainLayout.getViewDataBinding(): T? {
+    bindings.forEach {
+        if (it::class.java == T::class.java) {
+            return cast(it)
+        }
+    }
+    return null
 }
 
 internal fun LibLwpActivityBaseBinding.onBind(gainLayout: GainLayout) =
