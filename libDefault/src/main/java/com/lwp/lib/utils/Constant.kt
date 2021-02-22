@@ -7,12 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
-
-
-const val GET = 0x0
-const val POST = 0x1
-const val FORM = 0x2
-const val SUCCESS = GET
+const val SUCCESS = 0
 const val ERROR_NETWORK = -1
 
 
